@@ -18,6 +18,7 @@ class AppwriteConfig {
   static const String dutchGroupsCollectionId = 'dutch_groups';
   static const String dutchExpensesCollectionId = 'dutch_expenses';
   static const String dutchSettlementsCollectionId = 'dutch_settlements';
+  static const String goalsCollectionId = 'goals';
 
   // Functions
   static const String createGroupFunctionId = '697da27000261462e47c';

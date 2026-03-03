@@ -8,6 +8,8 @@ import '../providers/transaction_provider.dart';
 import '../providers/currency_provider.dart';
 import '../models/category.dart';
 import '../models/transaction.dart';
+import '../providers/goal_provider.dart';
+import '../widgets/goal_details_dialog.dart';
 
 class PersonalGraphScreen extends StatefulWidget {
   const PersonalGraphScreen({super.key});
@@ -107,6 +109,10 @@ class _PersonalGraphScreenState extends State<PersonalGraphScreen> {
                 provider.transactions, // Pass ALL transactions
                 provider.categories,
               ),
+              const SizedBox(height: 24),
+
+              // Completed Goals List
+              _buildCompletedGoals(theme, currencySymbol),
             ],
           ),
         ),
@@ -1016,6 +1022,136 @@ class _PersonalGraphScreenState extends State<PersonalGraphScreen> {
           ),
         );
       }),
+    );
+  }
+
+  Widget _buildCompletedGoals(ThemeData theme, String currency) {
+    return Consumer<GoalProvider>(
+      builder: (context, goalProvider, child) {
+        final completedGoals = goalProvider.goals
+            .where((g) => g.isCompleted)
+            .toList();
+
+        if (completedGoals.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        // Sort by completedAt descending if available
+        completedGoals.sort((a, b) {
+          if (a.completedAt != null && b.completedAt != null) {
+            return b.completedAt!.compareTo(a.completedAt!);
+          }
+          return 0;
+        });
+
+        return Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: theme.cardColor,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Completed Goals',
+                style: GoogleFonts.inter(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: theme.colorScheme.onBackground,
+                ),
+              ),
+              const SizedBox(height: 16),
+              ...completedGoals.map((goal) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: InkWell(
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => GoalDetailsDialog(goal: goal),
+                      );
+                    },
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.primary.withOpacity(0.05),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: theme.colorScheme.primary.withOpacity(0.1),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: Colors.amber.withOpacity(0.2),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.emoji_events,
+                              color: Colors.amber,
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  goal.title,
+                                  style: GoogleFonts.inter(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  goal.completedAt != null
+                                      ? 'Completed on ${DateFormat('MMM d, yyyy').format(goal.completedAt!)}'
+                                      : 'Completed',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 12,
+                                    color: Colors.grey.shade600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Text(
+                            '$currency${goal.targetAmount.toStringAsFixed(0)}',
+                            style: GoogleFonts.inter(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: theme.colorScheme.primary,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Icon(
+                            Icons.chevron_right,
+                            color: Colors.grey.shade400,
+                            size: 20,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }),
+            ],
+          ),
+        );
+      },
     );
   }
 }

@@ -24,6 +24,7 @@ import 'screens/ledger_screen.dart';
 import 'providers/investment_provider.dart';
 import 'providers/dutch_provider.dart';
 import 'providers/notification_provider.dart';
+import 'providers/goal_provider.dart';
 
 import 'services/notification_service.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -78,6 +79,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => InvestmentProvider()),
         ChangeNotifierProvider(create: (_) => DutchProvider()),
         ChangeNotifierProvider(create: (_) => NotificationProvider()),
+        ChangeNotifierProvider(create: (_) => GoalProvider()..init()),
       ],
       child: Consumer2<UserProvider, ThemeProvider>(
         builder: (context, userProvider, themeProvider, _) {

@@ -9,9 +9,14 @@ import '../models/item.dart';
 import '../providers/transaction_provider.dart';
 import '../providers/currency_provider.dart';
 import '../providers/user_provider.dart';
+import '../providers/goal_provider.dart';
+import '../models/goal.dart';
 import '../screens/settings/bank_details_screen.dart';
 import 'add_item_dialog.dart';
 import 'transaction_details_dialog.dart';
+import 'add_goal_dialog.dart';
+import 'fund_goal_dialog.dart';
+import 'goal_details_dialog.dart';
 import 'package:intl/intl.dart';
 
 class PersonalDashboard extends StatefulWidget {
@@ -114,8 +119,6 @@ class _PersonalDashboardState extends State<PersonalDashboard> {
                 ),
               ),
               const SizedBox(height: 16),
-
-              const SizedBox(height: 32),
 
               // Quick Entries Header
               Row(
@@ -242,7 +245,36 @@ class _PersonalDashboardState extends State<PersonalDashboard> {
 
               const SizedBox(height: 32),
 
+              // Goal Header
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Your Goal',
+                    style: GoogleFonts.inter(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => const AddGoalDialog(),
+                      );
+                    },
+                    icon: const Icon(Icons.add_circle),
+                    color: colorScheme.primary,
+                  ),
+                ],
+              ),
+
               const SizedBox(height: 16),
+
+              // Goal Nudge Banner
+              _buildGoalNudgeBanner(theme, colorScheme, currencySymbol),
+
+              const SizedBox(height: 32),
 
               // Transactions History
               Row(
@@ -368,6 +400,319 @@ class _PersonalDashboardState extends State<PersonalDashboard> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildGoalNudgeBanner(
+    ThemeData theme,
+    ColorScheme colorScheme,
+    String currencySymbol,
+  ) {
+    return Consumer<GoalProvider>(
+      builder: (context, goalProvider, child) {
+        final now = DateTime.now();
+        final displayGoals = goalProvider.goals.where((goal) {
+          if (!goal.isCompleted) return true;
+          if (goal.completedAt != null) {
+            return now.difference(goal.completedAt!).inHours <= 24;
+          }
+          return false;
+        }).toList();
+        // Show uncompleted goals first
+        displayGoals.sort((a, b) {
+          if (a.isCompleted && !b.isCompleted) return 1;
+          if (!a.isCompleted && b.isCompleted) return -1;
+          return 0;
+        });
+
+        if (displayGoals.isEmpty) {
+          // Empty State Banner
+          return Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  colorScheme.primary.withOpacity(0.15),
+                  colorScheme.primary.withOpacity(0.05),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: colorScheme.primary.withOpacity(0.3),
+                width: 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: colorScheme.primary.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: InkWell(
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => const AddGoalDialog(),
+                );
+              },
+              child: Row(
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: theme.brightness == Brightness.dark
+                          ? Colors.grey[800]
+                          : Colors.white,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: colorScheme.primary.withOpacity(0.5),
+                      ),
+                    ),
+                    child: Icon(Icons.add_task, color: colorScheme.primary),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Set a Financial Goal',
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: theme.brightness == Brightness.dark
+                                ? Colors.white
+                                : Colors.black87,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Save for a vacation, car, or emergency!',
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: colorScheme.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(Icons.chevron_right, color: colorScheme.primary),
+                ],
+              ),
+            ),
+          );
+        }
+
+        // Active State Banner (Multiple Goals supported via PageView)
+        return SizedBox(
+          height: 85, // Fixed height for constraints
+          child: PageView.builder(
+            controller: PageController(
+              viewportFraction: displayGoals.length > 1 ? 0.95 : 1.0,
+            ),
+            itemCount: displayGoals.length,
+            itemBuilder: (context, index) {
+              final goal = displayGoals[index];
+              final isCompleted = goal.isCompleted;
+              final double progress = goal.targetAmount > 0
+                  ? (goal.savedAmount / goal.targetAmount).clamp(0.0, 1.0)
+                  : 0.0;
+              final double remainingAmount =
+                  goal.targetAmount - goal.savedAmount;
+
+              return Padding(
+                padding: EdgeInsets.only(
+                  right:
+                      displayGoals.length > 1 && index < displayGoals.length - 1
+                      ? 8.0
+                      : 0.0,
+                ),
+                child: GestureDetector(
+                  onTap: () {
+                    // Show Details if Finished, Edit if Active
+                    if (isCompleted) {
+                      showDialog(
+                        context: context,
+                        builder: (context) => GoalDetailsDialog(goal: goal),
+                      );
+                    } else {
+                      showDialog(
+                        context: context,
+                        builder: (context) => AddGoalDialog(editingGoal: goal),
+                      );
+                    }
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    decoration: BoxDecoration(
+                      gradient: isCompleted
+                          ? LinearGradient(
+                              colors: [
+                                Colors.amber.withOpacity(0.25),
+                                Colors.amber.withOpacity(0.05),
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            )
+                          : LinearGradient(
+                              colors: [
+                                colorScheme.primary.withOpacity(0.15),
+                                colorScheme.primary.withOpacity(0.05),
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: isCompleted
+                            ? Colors.amber.withOpacity(0.6)
+                            : colorScheme.primary.withOpacity(0.3),
+                        width: 1,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        // Progress Ring
+                        SizedBox(
+                          width: 48,
+                          height: 48,
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              CircularProgressIndicator(
+                                value: isCompleted ? 1.0 : progress,
+                                strokeWidth: 4,
+                                backgroundColor:
+                                    theme.brightness == Brightness.dark
+                                    ? Colors.grey[800]
+                                    : Colors.grey[300],
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  isCompleted
+                                      ? Colors.amber
+                                      : colorScheme.primary,
+                                ),
+                              ),
+                              Center(
+                                child: Text(
+                                  goal.icon,
+                                  style: const TextStyle(fontSize: 20),
+                                ),
+                              ),
+                              if (isCompleted)
+                                Positioned(
+                                  bottom: 0,
+                                  right: 0,
+                                  child: Container(
+                                    decoration: const BoxDecoration(
+                                      color: Colors.amber,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    padding: const EdgeInsets.all(2),
+                                    child: const Icon(
+                                      Icons.check,
+                                      size: 10,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        // Goal Texts
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                goal.title,
+                                style: GoogleFonts.inter(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: theme.brightness == Brightness.dark
+                                      ? Colors.white
+                                      : Colors.black87,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                isCompleted
+                                    ? 'Goal Reached! 🏆'
+                                    : '$currencySymbol${remainingAmount.toStringAsFixed(0)} left this month!',
+                                style: GoogleFonts.inter(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: isCompleted
+                                      ? Colors.amber[700]
+                                      : colorScheme.primary,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
+                        // Quick Add Button
+                        if (!isCompleted)
+                          Material(
+                            color: colorScheme.primary,
+                            borderRadius: BorderRadius.circular(12),
+                            child: InkWell(
+                              onTap: () {
+                                // Open the Fund Goal Dialog
+                                showDialog(
+                                  context: context,
+                                  builder: (context) =>
+                                      FundGoalDialog(goal: goal),
+                                );
+                              },
+                              borderRadius: BorderRadius.circular(12),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.add,
+                                      size: 16,
+                                      color: Colors.white,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      'Fund',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 
