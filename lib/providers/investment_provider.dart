@@ -132,7 +132,9 @@ class InvestmentProvider extends ChangeNotifier {
         await _transactionBox.clear();
       }
     } catch (e) {
-      if (e is! AppwriteException || e.code != 401) {}
+      if (e is! AppwriteException || e.code != 401) {
+        // ignore: empty_catches
+      }
     } finally {
       _isLoading = false;
       Future.microtask(() => notifyListeners());
@@ -419,6 +421,7 @@ class InvestmentProvider extends ChangeNotifier {
         _hasMoreTransactions = false;
       }
     } catch (e) {
+      // ignore: empty_catches
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -454,6 +457,7 @@ class InvestmentProvider extends ChangeNotifier {
         _hasMoreInvestments = false;
       }
     } catch (e) {
+      // ignore: empty_catches
     } finally {
       _isLoading = false;
       notifyListeners();

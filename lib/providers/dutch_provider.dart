@@ -174,7 +174,9 @@ class DutchProvider extends ChangeNotifier {
             }
           });
         }
-      } catch (e) {}
+      } catch (e) {
+        // ignore: empty_catches
+      }
     }
 
     // Process settlements to adjust netPaid
@@ -286,6 +288,7 @@ class DutchProvider extends ChangeNotifier {
         _hasMoreGroups = false;
       }
     } catch (e) {
+      // ignore: empty_catches
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -355,7 +358,9 @@ class DutchProvider extends ChangeNotifier {
       // Fetch profiles for all users in global balances
       await _fetchGlobalMemberProfiles();
     } catch (e) {
-      if (e is! AppwriteException || e.code != 401) {}
+      if (e is! AppwriteException || e.code != 401) {
+        // ignore: empty_catches
+      }
     } finally {
       _isLoading = false;
       if (_isInit) {
@@ -420,7 +425,9 @@ class DutchProvider extends ChangeNotifier {
           for (var uid in beneficiaries) {
             balancesMap[uid] = (balancesMap[uid] ?? 0) - perPerson;
           }
-        } catch (e) {}
+        } catch (e) {
+          // ignore: empty_catches
+        }
       } else if (splitType == 'exact') {
         // splitData is a JSON map of {userId: amount}
         try {
@@ -429,7 +436,9 @@ class DutchProvider extends ChangeNotifier {
             balancesMap[uid] =
                 (balancesMap[uid] ?? 0) - (val as num).toDouble();
           });
-        } catch (e) {}
+        } catch (e) {
+          // ignore: empty_catches
+        }
       }
     }
 
@@ -1192,7 +1201,9 @@ class DutchProvider extends ChangeNotifier {
                   break;
                 }
               }
-            } catch (e) {}
+            } catch (e) {
+              // ignore: empty_catches
+            }
           }
         }
 
@@ -1316,7 +1327,9 @@ class DutchProvider extends ChangeNotifier {
           notifyListeners();
         } else {}
       } else {}
-    } catch (e) {}
+    } catch (e) {
+      // ignore: empty_catches
+    }
   }
 
   Future<void> rejectSettlement(String settlementId) async {

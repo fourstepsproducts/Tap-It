@@ -146,7 +146,9 @@ class _CategoryScreenState extends State<CategoryScreen>
           );
         },
       );
-    } catch (e) {}
+    } catch (e) {
+      // ignore: empty_catches
+    }
   }
 
   void _showAddItemDialog(

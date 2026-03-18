@@ -4,7 +4,6 @@ import '../../providers/transaction_provider.dart';
 import '../../providers/ledger_provider.dart';
 import '../../providers/investment_provider.dart';
 import '../../providers/dutch_provider.dart';
-import 'package:intl/intl.dart';
 
 class ResetOptionsScreen extends StatefulWidget {
   const ResetOptionsScreen({super.key});

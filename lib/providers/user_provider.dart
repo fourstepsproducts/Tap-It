@@ -151,7 +151,9 @@ class UserProvider extends ChangeNotifier {
         _user = null;
         if (_isHiveInitialized) await _userBox.clear();
       } else {
-        if (e is! AppwriteException || e.code != 401) {}
+        if (e is! AppwriteException || e.code != 401) {
+          // ignore: empty_catches
+        }
         // On other errors (offline), trust cache.
         if (_user != null) {
           _isAuthenticated = true;
@@ -278,6 +280,7 @@ class UserProvider extends ChangeNotifier {
         await _userBox.put('current_user', updatedProfile);
       }
     } catch (e) {
+      // ignore: empty_catches
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -308,6 +311,7 @@ class UserProvider extends ChangeNotifier {
       }
       return null;
     } catch (e) {
+      // ignore: empty_catches
       return null;
     } finally {
       _isLoading = false;

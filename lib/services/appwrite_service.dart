@@ -52,7 +52,9 @@ class AppwriteService {
               break;
             }
           }
-        } catch (e) {}
+        } catch (e) {
+          // ignore: empty_catches
+        }
 
         if (!hasSession) {
           return false;
@@ -212,7 +214,9 @@ class AppwriteService {
                   jsonDecode(pmData),
                 );
               }
-            } catch (e) {}
+            } catch (e) {
+              // ignore: empty_catches
+            }
           }
 
           if (data['customPaymentMethods'] != null) {
@@ -221,7 +225,9 @@ class AppwriteService {
               if (cpmData is String && cpmData.isNotEmpty) {
                 customPaymentMethods = List<String>.from(jsonDecode(cpmData));
               }
-            } catch (e) {}
+            } catch (e) {
+              // ignore: empty_catches
+            }
           }
         }
 
@@ -236,7 +242,9 @@ class AppwriteService {
           'primaryPaymentMethods': primaryPaymentMethods,
           'customPaymentMethods': customPaymentMethods,
         };
-      } catch (e) {}
+      } catch (e) {
+        // ignore: empty_catches
+      }
 
       return {
         'userId': user.$id,
@@ -484,7 +492,9 @@ class AppwriteService {
             receiverId = rUser['userId'];
           } else {}
         }
-      } catch (e) {}
+      } catch (e) {
+        // ignore: empty_catches
+      }
 
       // Determine Status & Permissions
       String status = transactionData['status'] ?? 'confirmed';
@@ -601,7 +611,9 @@ class AppwriteService {
           'collectionId': AppwriteConfig.ledgerCollectionId,
         }),
       );
-    } catch (e) {}
+    } catch (e) {
+      // ignore: empty_catches
+    }
   }
 
   Future<bool> updateLedgerTransactionStatus(String id, String status) async {
@@ -803,7 +815,9 @@ class AppwriteService {
         documentId: categoryId,
         data: {'usageCount': currentUsage + 1},
       );
-    } catch (e) {}
+    } catch (e) {
+      // ignore: empty_catches
+    }
   }
 
   Future<void> incrementItemUsage(String itemId) async {
@@ -820,7 +834,9 @@ class AppwriteService {
         documentId: itemId,
         data: {'usageCount': currentUsage + 1},
       );
-    } catch (e) {}
+    } catch (e) {
+      // ignore: empty_catches
+    }
   }
 
   Future<void> decrementCategoryUsage(String categoryId) async {
@@ -839,7 +855,9 @@ class AppwriteService {
           data: {'usageCount': currentUsage - 1},
         );
       }
-    } catch (e) {}
+    } catch (e) {
+      // ignore: empty_catches
+    }
   }
 
   Future<void> decrementItemUsage(String itemId) async {
@@ -858,7 +876,9 @@ class AppwriteService {
           data: {'usageCount': currentUsage - 1},
         );
       }
-    } catch (e) {}
+    } catch (e) {
+      // ignore: empty_catches
+    }
   }
 
   // --- CATEGORIES & ITEMS ---

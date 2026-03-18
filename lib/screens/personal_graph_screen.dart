@@ -729,7 +729,15 @@ class _PersonalGraphScreenState extends State<PersonalGraphScreen> {
             ...top3.map((entry) {
               final category = provider.categories.firstWhere(
                 (c) => c.id == entry.key,
-                orElse: () => provider.categories.first,
+                orElse: () => provider.categories.isNotEmpty
+                    ? provider.categories.first
+                    : Category(
+                        id: 'unknown',
+                        userId: '',
+                        name: 'Uncategorized',
+                        type: 'expense',
+                        icon: 'help_outline',
+                      ),
               );
               return Padding(
                 padding: const EdgeInsets.only(bottom: 12),
@@ -880,7 +888,15 @@ class _PersonalGraphScreenState extends State<PersonalGraphScreen> {
     if (topCatEntry != null && categories.isNotEmpty) {
       final found = categories.firstWhere(
         (c) => c.id == topCatEntry.key,
-        orElse: () => categories.first,
+        orElse: () => categories.isNotEmpty
+            ? categories.first
+            : Category(
+                id: 'unknown',
+                userId: '',
+                name: 'Uncategorized',
+                type: 'expense',
+                icon: 'help_outline',
+              ),
       );
       topCatName = found.name;
       topCatVal = topCatEntry.value;

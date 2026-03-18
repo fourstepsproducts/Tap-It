@@ -773,7 +773,9 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
           });
         });
       }
-    } catch (e) {}
+    } catch (e) {
+      // ignore: empty_catches
+    }
 
     showModalBottomSheet(
       context: context,

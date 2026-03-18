@@ -70,7 +70,9 @@ class UserProfile {
         if (decoded is Map) {
           return Map<String, String>.from(decoded);
         }
-      } catch (e) {}
+      } catch (e) {
+        // ignore: empty_catches
+      }
     }
     return {};
   }

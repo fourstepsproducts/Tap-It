@@ -1131,8 +1131,8 @@ class _PersonLedgerScreenState extends State<PersonLedgerScreen> {
 
     showDialog(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setDialogState) {
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (dialogContext, setDialogState) {
           final isGave = !currentIsReceived;
           final primaryColor = currentIsReceived
               ? const Color(0xFF51CF66)
@@ -1359,6 +1359,7 @@ class _PersonLedgerScreenState extends State<PersonLedgerScreen> {
                                 (t) => t.id == tempId,
                               );
                             });
+                            if (!mounted) return;
                             ScaffoldMessenger.of(
                               context,
                             ).showSnackBar(SnackBar(content: Text(error)));
@@ -1397,7 +1398,7 @@ class _PersonLedgerScreenState extends State<PersonLedgerScreen> {
 
     showDialog(
       context: context,
-      builder: (context) => Dialog(
+      builder: (dialogContext) => Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         child: Container(
           padding: const EdgeInsets.all(24),
@@ -1492,6 +1493,7 @@ class _PersonLedgerScreenState extends State<PersonLedgerScreen> {
                           return;
                         }
 
+                        if (!mounted) return;
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Updating person...')),
                         );
@@ -1505,26 +1507,23 @@ class _PersonLedgerScreenState extends State<PersonLedgerScreen> {
                               newPhone: newPhone,
                             );
 
+                        if (!mounted) return;
                         if (success) {
-                          if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Person updated successfully'),
-                              ),
-                            );
-                            Navigator.pop(context);
-                          }
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Person updated successfully'),
+                            ),
+                          );
+                          Navigator.pop(dialogContext);
                         } else {
-                          if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: const Text('Failed to update person'),
-                                backgroundColor: Theme.of(
-                                  context,
-                                ).colorScheme.error,
-                              ),
-                            );
-                          }
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: const Text('Failed to update person'),
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.error,
+                            ),
+                          );
                         }
                       }
                     },
@@ -1557,20 +1556,21 @@ class _PersonLedgerScreenState extends State<PersonLedgerScreen> {
   void _confirmDeletePerson() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('Remove from Dashboard?'),
         content: Text(
           'This will remove ${widget.personName} from your dashboard. Records will reappear if you add a new transaction for them.',
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () async {
-              Navigator.pop(context);
+              Navigator.pop(dialogContext);
 
+              if (!mounted) return;
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text('Removing ${widget.personName}...')),
               );

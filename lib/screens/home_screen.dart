@@ -110,7 +110,9 @@ class _HomeScreenState extends State<HomeScreen> {
             context.read<LedgerProvider>().fetchLedgerTransactions();
             context.read<InvestmentProvider>().fetchInvestments();
             context.read<DutchProvider>().fetchGlobalData();
-          } catch (e) {}
+          } catch (e) {
+            // ignore: empty_catches
+          }
         }
       }
     });

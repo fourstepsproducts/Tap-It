@@ -147,6 +147,7 @@ class TransactionProvider extends ChangeNotifier {
       // Quick Items
       await _loadQuickItems();
     } catch (e) {
+      // ignore: empty_catches
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -207,7 +208,9 @@ class TransactionProvider extends ChangeNotifier {
       if (_quickItems.isNotEmpty) {
         await _itemBox.putAll({for (var i in _quickItems) i.id: i});
       }
-    } catch (e) {}
+    } catch (e) {
+      // ignore: empty_catches
+    }
   }
 
   Future<void> updateItemsOrder(List<Item> reorderedSubset) async {
@@ -275,7 +278,9 @@ class TransactionProvider extends ChangeNotifier {
       final itemData = await _appwriteService.getItems(categoryId);
       _items = itemData.map((data) => Item.fromJson(data)).toList();
       notifyListeners();
-    } catch (e) {}
+    } catch (e) {
+      // ignore: empty_catches
+    }
   }
 
   Future<bool> addTransaction(
@@ -520,6 +525,7 @@ class TransactionProvider extends ChangeNotifier {
       }
       return null;
     } catch (e) {
+      // ignore: empty_catches
       return null;
     }
   }
@@ -640,6 +646,7 @@ class TransactionProvider extends ChangeNotifier {
         _hasMore = false;
       }
     } catch (e) {
+      // ignore: empty_catches
     } finally {
       _isLoading = false;
       notifyListeners();

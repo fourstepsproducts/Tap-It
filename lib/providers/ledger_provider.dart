@@ -126,7 +126,9 @@ class LedgerProvider extends ChangeNotifier {
         await _ledgerBox.clear();
       }
     } catch (e) {
-      if (e is! AppwriteException || e.code != 401) {}
+      if (e is! AppwriteException || e.code != 401) {
+        // ignore: empty_catches
+      }
     } finally {
       _isLoading = false;
       if (_ledgerTransactions.isNotEmpty ||
@@ -222,6 +224,7 @@ class LedgerProvider extends ChangeNotifier {
         _hasMore = false;
       }
     } catch (e) {
+      // ignore: empty_catches
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -623,7 +626,9 @@ class LedgerProvider extends ChangeNotifier {
                 Transaction.fromJson(result),
               );
             }
-          } catch (e) {}
+          } catch (e) {
+            // ignore: empty_catches
+          }
         }
       }
     }
@@ -708,7 +713,9 @@ class LedgerProvider extends ChangeNotifier {
         }
       }
       notifyListeners();
-    } catch (e) {}
+    } catch (e) {
+      // ignore: empty_catches
+    }
   }
 
   Future<void> resetDue({DateTime? startDate, DateTime? endDate}) async {

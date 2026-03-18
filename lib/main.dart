@@ -196,7 +196,9 @@ class _AuthWrapperState extends State<AuthWrapper> {
     try {
       await NotificationService().init();
       await NotificationService().requestPermissions();
-    } catch (e) {}
+    } catch (e) {
+      // ignore: empty_catches
+    }
 
     // Setup Notification Provider
     if (mounted) {

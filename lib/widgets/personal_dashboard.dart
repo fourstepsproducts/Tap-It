@@ -10,7 +10,6 @@ import '../providers/transaction_provider.dart';
 import '../providers/currency_provider.dart';
 import '../providers/user_provider.dart';
 import '../providers/goal_provider.dart';
-import '../models/goal.dart';
 import '../screens/settings/bank_details_screen.dart';
 import 'add_item_dialog.dart';
 import 'transaction_details_dialog.dart';
