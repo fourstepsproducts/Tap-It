@@ -1,10 +1,12 @@
 import 'package:flutter/foundation.dart' hide Category;
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/transaction.dart';
 import '../models/category.dart';
 import '../models/item.dart';
 import '../services/appwrite_service.dart';
 import '../services/sound_service.dart';
+import '../services/widget_service.dart';
 
 class TransactionProvider extends ChangeNotifier {
   final AppwriteService _appwriteService = AppwriteService();
@@ -45,6 +47,22 @@ class TransactionProvider extends ChangeNotifier {
       }
     }
     return total;
+  }
+
+  // --- Widget Sync ---
+  Future<void> syncWidget({String? currency}) async {
+    String symbol = currency ?? '₹';
+    if (currency == null) {
+      final prefs = await SharedPreferences.getInstance();
+      symbol = prefs.getString('currency_symbol') ?? '₹';
+    }
+    await WidgetService.updateWidgetData(
+      balance: totalBalance,
+      income: totalIncome,
+      expenses: totalExpenses,
+      currency: symbol,
+      quickItems: _quickItems,
+    );
   }
 
   double get totalIncome {
@@ -146,6 +164,7 @@ class TransactionProvider extends ChangeNotifier {
 
       // Quick Items
       await _loadQuickItems();
+      syncWidget();
     } catch (e) {
       // ignore: empty_catches
     } finally {
@@ -208,6 +227,7 @@ class TransactionProvider extends ChangeNotifier {
       if (_quickItems.isNotEmpty) {
         await _itemBox.putAll({for (var i in _quickItems) i.id: i});
       }
+      syncWidget();
     } catch (e) {
       // ignore: empty_catches
     }
@@ -348,6 +368,7 @@ class TransactionProvider extends ChangeNotifier {
         // Refresh meta data
         _loadQuickItems();
         await _loadCategories();
+        syncWidget();
         notifyListeners();
         return true;
       } else {
@@ -401,6 +422,7 @@ class TransactionProvider extends ChangeNotifier {
     } else {
       _loadQuickItems();
       await _loadCategories();
+      syncWidget();
       notifyListeners();
       return true;
     }

@@ -106,7 +106,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
         if (mounted) {
           try {
-            context.read<TransactionProvider>().fetchData();
+            context.read<TransactionProvider>().fetchData().then((_) {
+              context.read<TransactionProvider>().syncWidget();
+            });
             context.read<LedgerProvider>().fetchLedgerTransactions();
             context.read<InvestmentProvider>().fetchInvestments();
             context.read<DutchProvider>().fetchGlobalData();
