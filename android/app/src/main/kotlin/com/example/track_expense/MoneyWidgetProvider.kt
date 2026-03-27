@@ -51,6 +51,9 @@ class MoneyWidgetProvider : AppWidgetProvider() {
             // Open app on balance card click
             val launchIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)
             if (launchIntent != null) {
+                launchIntent.action = Intent.ACTION_VIEW
+                launchIntent.data = Uri.parse("moneycalc://widget/0")
+                launchIntent.putExtra("target_tab", 0)
                 val pi = PendingIntent.getActivity(context, 0, launchIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
                 views.setOnClickPendingIntent(R.id.widget_root, pi)
             }

@@ -15,6 +15,7 @@ import '../widgets/ledger_dashboard.dart';
 import '../widgets/investment_dashboard.dart';
 import '../widgets/dutch_dashboard.dart';
 import '../widgets/starter_guide.dart';
+import '../services/widget_service.dart';
 
 
 import 'ledger_history_screen.dart';
@@ -107,6 +108,21 @@ class _HomeScreenState extends State<HomeScreen> {
 
         if (mounted) {
           try {
+            // Listen for taps from native Android Home Screen widgets
+            WidgetService.listenForWidgetInteraction((tabIndex) {
+              if (mounted && _currentMode != tabIndex) {
+                if (tabIndex == 1) {
+                  // Ledger needs auth if they have biometrics enabled
+                  _authenticate();
+                } else {
+                  setState(() {
+                    _currentMode = tabIndex;
+                    _selectedIndex = 0; // Fix: Always reset bottom nav to index 0
+                  });
+                }
+              }
+            });
+
             context.read<TransactionProvider>().fetchData().then((_) {
               context.read<TransactionProvider>().syncWidget();
             });

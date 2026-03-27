@@ -7,6 +7,8 @@ import 'package:appwrite/appwrite.dart';
 import '../models/transaction.dart';
 import '../models/category.dart';
 import 'transaction_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../services/widget_service.dart';
 
 class LedgerProvider extends ChangeNotifier {
   final AppwriteService _appwriteService = AppwriteService();
@@ -140,6 +142,7 @@ class LedgerProvider extends ChangeNotifier {
           ..._outgoingRequests,
         ]);
       }
+      syncWidget();
       Future.microtask(() => notifyListeners());
     }
   }
@@ -475,6 +478,7 @@ class LedgerProvider extends ChangeNotifier {
       if (_isHiveInitialized) {
         _ledgerBox.delete(id);
       }
+      syncWidget();
       notifyListeners();
       return true;
     }
@@ -631,6 +635,60 @@ class LedgerProvider extends ChangeNotifier {
           }
         }
       }
+    }
+  }
+
+  Future<void> syncWidget({String? currency}) async {
+    try {
+      String symbol = currency ?? '₹';
+      if (currency == null) {
+        final prefs = await SharedPreferences.getInstance();
+        symbol = prefs.getString('currency_symbol') ?? '₹';
+      }
+
+      final all = [
+        ..._ledgerTransactions,
+        ..._notes,
+        ..._outgoingRequests,
+        ..._incomingRequests,
+      ];
+
+      double totalSent = 0;
+      double totalReceived = 0;
+
+      for (var t in all) {
+        if (_currentUserId != null && t.senderId == _currentUserId) {
+          totalSent += t.amount;
+        } else if (_currentUserId != null && t.receiverId == _currentUserId) {
+          totalReceived += t.amount;
+        } else {
+           // fallback logic
+           totalReceived += t.amount; // Assume received if we can't tell (to match dashboard fallback for incoming)
+        }
+      }
+
+      double netBalance = totalReceived - totalSent;
+
+      // Extract recent 3
+      final recentTx = List<LedgerTransaction>.from(all);
+      recentTx.sort((a, b) => b.dateTime.compareTo(a.dateTime));
+      final top3 = recentTx.take(3).map((t) {
+        bool isSent = (_currentUserId != null && t.senderId == _currentUserId);
+        return {
+          'title': isSent ? 'Lent to ${t.receiverName}' : 'Borrowed from ${t.senderName}',
+          'id': t.id,
+        };
+      }).toList();
+
+      await WidgetService.updateLedgerWidgetData(
+        netBalance: netBalance,
+        youGet: totalSent,      // Money you sent is money you get back
+        youOwe: totalReceived,  // Money you received is money you owe
+        currency: symbol,
+        recentItems: top3,
+      );
+    } catch (e) {
+      // ignore widget error
     }
   }
 

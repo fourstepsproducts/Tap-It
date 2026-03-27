@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import '../services/dutch_service.dart';
 import '../services/appwrite_service.dart';
 import 'package:appwrite/appwrite.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../services/widget_service.dart';
 
 class DutchProvider extends ChangeNotifier {
   final DutchService _service = DutchService();
@@ -248,6 +250,45 @@ class DutchProvider extends ChangeNotifier {
     return pendingExpenses + pendingSettlements;
   }
 
+  Future<void> syncWidget({String? currency}) async {
+    try {
+      String symbol = currency ?? '₹';
+      if (currency == null) {
+        final prefs = await SharedPreferences.getInstance();
+        symbol = prefs.getString('currency_symbol') ?? '₹';
+      }
+
+      final yourShare = getGlobalUserShare();
+      
+      int globalPendingCount = 0;
+      for (var e in _globalExpenses) {
+        if (e['status'] == 'pending') globalPendingCount++;
+      }
+      for (var s in _globalSettlements) {
+        if (s['status'] == 'pending' && _safeId(s['receiverId']) == _currentUserId) {
+          globalPendingCount++;
+        }
+      }
+
+      final top3 = _groups.take(3).map((g) {
+        return {
+          'title': g['name'] as String? ?? 'Group',
+          'id': g['id'] as String? ?? '',
+        };
+      }).toList();
+
+      await WidgetService.updateSplitWidgetData(
+        yourShare: yourShare,
+        groupCount: _groups.length,
+        pendingCount: globalPendingCount,
+        currency: symbol,
+        topGroups: top3,
+      );
+    } catch (e) {
+      // ignore
+    }
+  }
+
   // Calculate Total Owed/Owe globally (across all groups) - Future implementation
 
   Future<void> fetchGroups() async {
@@ -267,6 +308,7 @@ class DutchProvider extends ChangeNotifier {
       _error = e.toString();
     } finally {
       _isLoading = false;
+      syncWidget();
       notifyListeners();
     }
   }
@@ -363,6 +405,7 @@ class DutchProvider extends ChangeNotifier {
       }
     } finally {
       _isLoading = false;
+      syncWidget();
       if (_isInit) {
         Future.microtask(() => notifyListeners());
         _isInit = false;

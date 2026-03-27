@@ -4,6 +4,8 @@ import '../models/investment.dart';
 import '../models/investment_transaction.dart';
 import '../services/appwrite_service.dart';
 import 'package:appwrite/appwrite.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../services/widget_service.dart';
 
 class InvestmentProvider extends ChangeNotifier {
   final AppwriteService _appwriteService = AppwriteService();
@@ -63,6 +65,37 @@ class InvestmentProvider extends ChangeNotifier {
     if (txs.isEmpty) return null;
     // Transactions are sorted descending, so first is newest
     return txs.first.dateTime;
+  }
+
+  Future<void> syncWidget({String? currency}) async {
+    try {
+      String symbol = currency ?? '₹';
+      if (currency == null) {
+        final prefs = await SharedPreferences.getInstance();
+        symbol = prefs.getString('currency_symbol') ?? '₹';
+      }
+
+      // Sort investments by current amount for top 3
+      final sortedInv = List<Investment>.from(_investments);
+      sortedInv.sort((a, b) => b.currentAmount.compareTo(a.currentAmount));
+      
+      final top3 = sortedInv.take(3).map((inv) {
+        return {
+          'title': inv.name,
+          'id': inv.id,
+        };
+      }).toList();
+
+      await WidgetService.updateInvestWidgetData(
+        currentValue: totalCurrentValue,
+        investedAmount: totalInvestedValue,
+        pnl: totalProfitLoss,
+        currency: symbol,
+        portfolioItems: top3,
+      );
+    } catch (e) {
+      // ignore widget sync error
+    }
   }
 
   Future<void> _initHive() async {
@@ -137,6 +170,7 @@ class InvestmentProvider extends ChangeNotifier {
       }
     } finally {
       _isLoading = false;
+      syncWidget();
       Future.microtask(() => notifyListeners());
     }
   }
@@ -236,6 +270,7 @@ class InvestmentProvider extends ChangeNotifier {
   Future<void> deleteInvestment(String id) async {
     _investments.removeWhere((i) => i.id == id);
     if (_isHiveInitialized) _investmentBox.delete(id);
+    syncWidget();
     notifyListeners();
 
     await _appwriteService.deleteInvestment(id);
@@ -259,6 +294,7 @@ class InvestmentProvider extends ChangeNotifier {
 
     _investments[index] = updated;
     if (_isHiveInitialized) _investmentBox.put(id, updated);
+    syncWidget();
     notifyListeners();
 
     await _appwriteService.updateInvestment(id, {
