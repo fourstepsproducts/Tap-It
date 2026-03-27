@@ -7,13 +7,14 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+
 import android.widget.RemoteViews
 
 class MoneyWidgetProvider : AppWidgetProvider() {
 
     companion object {
         const val ACTION_CHANGE_TAB = "com.example.track_expense.ACTION_CHANGE_TAB"
-        const val ACTION_REFRESH = "com.example.track_expense.ACTION_REFRESH"
+
         const val EXTRA_TAB = "extra_tab"
     }
 
@@ -30,14 +31,7 @@ class MoneyWidgetProvider : AppWidgetProvider() {
                 val widgetIds = manager.getAppWidgetIds(componentName)
                 onUpdate(context, manager, widgetIds)
             }
-            ACTION_REFRESH -> {
-                // Launch the app so it fetches fresh data and syncs back to widget
-                val launchIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)
-                if (launchIntent != null) {
-                    launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    context.startActivity(launchIntent)
-                }
-            }
+
         }
     }
 
@@ -61,12 +55,7 @@ class MoneyWidgetProvider : AppWidgetProvider() {
                 views.setOnClickPendingIntent(R.id.widget_root, pi)
             }
 
-            // Refresh button
-            val refreshIntent = Intent(context, MoneyWidgetProvider::class.java).apply {
-                action = ACTION_REFRESH
-            }
-            val refreshPi = PendingIntent.getBroadcast(context, 999, refreshIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-            views.setOnClickPendingIntent(R.id.btn_refresh, refreshPi)
+
 
             // Tabs
             val currentTab = prefs.getString("current_tab", "daily") ?: "daily"

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import '../models/item.dart';
 
@@ -35,8 +36,7 @@ class WidgetService {
       // Send to native Android via MethodChannel
       await _channel.invokeMethod('updateWidget', data);
     } catch (e) {
-      // ignore
-      print('Error updating widget: $e');
+      debugPrint('Error updating widget: $e');
     }
   }
 
