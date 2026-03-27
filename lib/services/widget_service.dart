@@ -5,11 +5,17 @@ import '../models/item.dart';
 class WidgetService {
   static const MethodChannel _channel = MethodChannel('com.example.track_expense/widget');
 
-  static void listenForWidgetInteraction(Function(int) onTabChange) {
+  static void listenForWidgetInteraction(Function(int, {String? subTab}) onTabChange) {
     _channel.setMethodCallHandler((call) async {
       if (call.method == 'openTab') {
-        final tab = call.arguments as int;
-        onTabChange(tab);
+        if (call.arguments is int) {
+          onTabChange(call.arguments as int);
+        } else if (call.arguments is Map) {
+          final map = call.arguments as Map;
+          final tab = map['tab'] as int;
+          final subTab = map['subTab'] as String?;
+          onTabChange(tab, subTab: subTab);
+        }
       }
     });
   }

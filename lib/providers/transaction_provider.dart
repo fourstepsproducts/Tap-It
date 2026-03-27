@@ -37,6 +37,8 @@ class TransactionProvider extends ChangeNotifier {
 
   bool _isHiveInitialized = false;
 
+  String? pendingSubTab;
+
   double get totalBalance {
     double total = 0;
     for (var transaction in _transactions) {

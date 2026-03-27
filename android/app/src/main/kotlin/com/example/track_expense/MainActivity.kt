@@ -93,7 +93,12 @@ class MainActivity: FlutterActivity() {
     private fun handleIntent(intent: Intent) {
         if (intent.hasExtra("target_tab")) {
             val tab = intent.getIntExtra("target_tab", 0)
-            methodChannel?.invokeMethod("openTab", tab)
+            val subTab = intent.getStringExtra("sub_tab")
+            if (subTab != null) {
+                methodChannel?.invokeMethod("openTab", mapOf("tab" to tab, "subTab" to subTab))
+            } else {
+                methodChannel?.invokeMethod("openTab", tab)
+            }
         }
     }
 }

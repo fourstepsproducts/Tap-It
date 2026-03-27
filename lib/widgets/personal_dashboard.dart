@@ -44,6 +44,21 @@ class _PersonalDashboardState extends State<PersonalDashboard> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
+    if (provider.pendingSubTab != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && provider.pendingSubTab != null) {
+          setState(() {
+            String newMode = provider.pendingSubTab!;
+            if (newMode == 'flexi') {
+              newMode = 'variable';
+            }
+            _entryMode = newMode;
+          });
+          provider.pendingSubTab = null;
+        }
+      });
+    }
+
     return RefreshIndicator(
       onRefresh: () async {
         await provider.fetchData();
