@@ -421,17 +421,20 @@ class AppwriteService {
   ) async {
     try {
       final user = await account.get();
-      final txData = {
+      final txData = <String, dynamic>{
         'userId': user.$id,
-        'amount': data['amount'],
-        'categoryId': data['categoryId'],
-        'itemId': data['itemId'],
         'title': data['title'] ?? data['description'] ?? '',
-        'dateTime': data['dateTime'],
+        'amount': data['amount'],
         'isExpense': data['isExpense'],
-        'ledgerId': data['ledgerId'],
-        'paymentMethod': data['paymentMethod'],
+        'dateTime': data['dateTime'],
       };
+
+      // Only include optional fields if they have non-null values
+      // Appwrite rejects null values for fields not marked nullable in schema
+      if (data['categoryId'] != null) txData['categoryId'] = data['categoryId'];
+      if (data['itemId'] != null) txData['itemId'] = data['itemId'];
+      if (data['ledgerId'] != null) txData['ledgerId'] = data['ledgerId'];
+      if (data['paymentMethod'] != null) txData['paymentMethod'] = data['paymentMethod'];
 
       // Handle Usage logic
       if (data['categoryId'] != null) {
@@ -456,6 +459,7 @@ class AppwriteService {
       response['id'] = doc.$id;
       return response;
     } catch (e) {
+      debugPrint('❌ createTransaction FAILED: $e');
       return null;
     }
   }

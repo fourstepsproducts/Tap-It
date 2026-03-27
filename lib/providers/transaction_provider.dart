@@ -51,18 +51,22 @@ class TransactionProvider extends ChangeNotifier {
 
   // --- Widget Sync ---
   Future<void> syncWidget({String? currency}) async {
-    String symbol = currency ?? '₹';
-    if (currency == null) {
-      final prefs = await SharedPreferences.getInstance();
-      symbol = prefs.getString('currency_symbol') ?? '₹';
+    try {
+      String symbol = currency ?? '₹';
+      if (currency == null) {
+        final prefs = await SharedPreferences.getInstance();
+        symbol = prefs.getString('currency_symbol') ?? '₹';
+      }
+      await WidgetService.updateWidgetData(
+        balance: totalBalance,
+        income: totalIncome,
+        expenses: totalExpenses,
+        currency: symbol,
+        quickItems: _quickItems,
+      );
+    } catch (e) {
+      // Widget sync is non-critical, never block app functionality
     }
-    await WidgetService.updateWidgetData(
-      balance: totalBalance,
-      income: totalIncome,
-      expenses: totalExpenses,
-      currency: symbol,
-      quickItems: _quickItems,
-    );
   }
 
   double get totalIncome {
@@ -337,9 +341,10 @@ class TransactionProvider extends ChangeNotifier {
 
     try {
       // API Call
-      final result = await _appwriteService.createTransaction(
-        newTransaction.toJson(),
-      );
+      final txJson = newTransaction.toJson();
+      debugPrint('📤 Sending transaction to DB: $txJson');
+      final result = await _appwriteService.createTransaction(txJson);
+      debugPrint('📥 DB response: ${result != null ? "SUCCESS" : "NULL (FAILED)"}');
 
       if (result != null) {
         final realTx = Transaction.fromJson(result);

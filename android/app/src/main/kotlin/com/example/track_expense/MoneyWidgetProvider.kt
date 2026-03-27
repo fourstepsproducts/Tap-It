@@ -13,20 +13,31 @@ class MoneyWidgetProvider : AppWidgetProvider() {
 
     companion object {
         const val ACTION_CHANGE_TAB = "com.example.track_expense.ACTION_CHANGE_TAB"
+        const val ACTION_REFRESH = "com.example.track_expense.ACTION_REFRESH"
         const val EXTRA_TAB = "extra_tab"
     }
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
-        if (intent.action == ACTION_CHANGE_TAB) {
-            val tab = intent.getStringExtra(EXTRA_TAB) ?: "daily"
-            val prefs = context.getSharedPreferences("HomeWidgetPreferences", Context.MODE_PRIVATE)
-            prefs.edit().putString("current_tab", tab).apply()
+        when (intent.action) {
+            ACTION_CHANGE_TAB -> {
+                val tab = intent.getStringExtra(EXTRA_TAB) ?: "daily"
+                val prefs = context.getSharedPreferences("HomeWidgetPreferences", Context.MODE_PRIVATE)
+                prefs.edit().putString("current_tab", tab).apply()
 
-            val manager = AppWidgetManager.getInstance(context)
-            val componentName = ComponentName(context, MoneyWidgetProvider::class.java)
-            val widgetIds = manager.getAppWidgetIds(componentName)
-            onUpdate(context, manager, widgetIds)
+                val manager = AppWidgetManager.getInstance(context)
+                val componentName = ComponentName(context, MoneyWidgetProvider::class.java)
+                val widgetIds = manager.getAppWidgetIds(componentName)
+                onUpdate(context, manager, widgetIds)
+            }
+            ACTION_REFRESH -> {
+                // Launch the app so it fetches fresh data and syncs back to widget
+                val launchIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)
+                if (launchIntent != null) {
+                    launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    context.startActivity(launchIntent)
+                }
+            }
         }
     }
 
@@ -43,12 +54,19 @@ class MoneyWidgetProvider : AppWidgetProvider() {
             views.setTextViewText(R.id.widget_income, prefs.getString("income", "₹0.00"))
             views.setTextViewText(R.id.widget_expenses, prefs.getString("expenses", "₹0.00"))
 
-            // Open app on widget click
+            // Open app on balance card click
             val launchIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)
             if (launchIntent != null) {
                 val pi = PendingIntent.getActivity(context, 0, launchIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
                 views.setOnClickPendingIntent(R.id.widget_root, pi)
             }
+
+            // Refresh button
+            val refreshIntent = Intent(context, MoneyWidgetProvider::class.java).apply {
+                action = ACTION_REFRESH
+            }
+            val refreshPi = PendingIntent.getBroadcast(context, 999, refreshIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+            views.setOnClickPendingIntent(R.id.btn_refresh, refreshPi)
 
             // Tabs
             val currentTab = prefs.getString("current_tab", "daily") ?: "daily"

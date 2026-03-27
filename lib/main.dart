@@ -25,7 +25,6 @@ import 'providers/investment_provider.dart';
 import 'providers/dutch_provider.dart';
 import 'providers/notification_provider.dart';
 import 'providers/goal_provider.dart';
-import 'package:home_widget/home_widget.dart';
 
 import 'services/notification_service.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -193,8 +192,6 @@ class _AuthWrapperState extends State<AuthWrapper> {
     // Check Auth
     await context.read<UserProvider>().checkAuthStatus();
 
-    // Check if launched from Widget
-    _handleWidgetLaunch();
 
     // Init Notifications (Don't block UI)
     try {
@@ -212,31 +209,6 @@ class _AuthWrapperState extends State<AuthWrapper> {
         Future.microtask(
           () => context.read<NotificationProvider>().init(user.userId),
         );
-      }
-    }
-  }
-
-  void _handleWidgetLaunch() async {
-    final Uri? uri = await HomeWidget.initiallyLaunchedFromHomeWidget();
-    if (uri != null && mounted) {
-      _navigateToItem(uri);
-    }
-    
-    HomeWidget.widgetClicked.listen((Uri? uri) {
-      if (uri != null && mounted) {
-        _navigateToItem(uri);
-      }
-    });
-  }
-
-  void _navigateToItem(Uri uri) {
-    if (uri.scheme == 'moneycalc' && uri.host == 'add_transaction') {
-      final itemId = uri.queryParameters['itemId'];
-      if (itemId != null) {
-        // Navigation logic: Need to find the item and open Add Transaction dialog/screen
-        // For now, we can just print or use a navigator key if available.
-        // Since we are in AuthWrapper, it's a bit tricky. 
-        // We'll trust the app handles it in HomeScreen if we pass a flag or similar.
       }
     }
   }
