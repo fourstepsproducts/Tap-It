@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../providers/user_provider.dart';
 import '../models/item.dart';
 import '../models/category.dart';
 import '../providers/transaction_provider.dart';
 import '../services/notification_service.dart';
 import '../utils/formatters.dart';
 import 'category_dialog.dart';
+
+enum EntryMode { quick, flexi, oneTime }
 
 class AddItemDialog extends StatefulWidget {
   final Category? category; // Pre-selected category
@@ -37,7 +40,8 @@ class _AddItemDialogState extends State<AddItemDialog> {
   String? _selectedCategoryId;
   String _selectedIcon = 'star';
   int? _dueDay;
-  bool _isVariable = false;
+  String? _selectedPaymentMethod;
+  EntryMode _mode = EntryMode.quick;
 
   bool _isSaving = false;
 
@@ -90,6 +94,8 @@ class _AddItemDialogState extends State<AddItemDialog> {
     super.initState();
     final item = widget.editingItem ?? widget.existingItem;
 
+    _selectedPaymentMethod = 'Cash'; // Default
+
     _titleController = TextEditingController(text: item?.title);
     _amountController = TextEditingController(
       text: item != null
@@ -101,22 +107,24 @@ class _AddItemDialogState extends State<AddItemDialog> {
 
     if (widget.editingItem != null) {
       // Editing Mode
-      _isVariable = widget.editingItem!.isVariable ?? false;
+      _mode = (widget.editingItem!.isVariable ?? false)
+          ? EntryMode.flexi
+          : EntryMode.quick;
       // Initialize _isDaily logic: Daily if frequency is daily, OR if variable but no dueDay (default)
       // If it has a DueDay, we treat it as "Monthly" UI-wise
-      if (_isVariable) {
+      if (_mode == EntryMode.flexi) {
         _isDaily = widget.editingItem?.dueDay == null;
       } else {
         _isDaily = widget.editingItem?.frequency == 'daily';
       }
     } else if (widget.existingItem != null) {
       // Add Transaction Mode (from existing item)
+      _mode = EntryMode.quick;
       _isDaily = widget.existingItem?.frequency == 'daily'; // inherited
-      _isVariable = false;
     } else {
       // Add New Mode
       _isDaily = widget.isDaily;
-      _isVariable = widget.initialIsVariable;
+      _mode = widget.initialIsVariable ? EntryMode.flexi : EntryMode.quick;
     }
 
     // Restore missing initialization
@@ -207,7 +215,22 @@ class _AddItemDialogState extends State<AddItemDialog> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<TransactionProvider>();
+    final userProvider = context.watch<UserProvider>();
     final categories = provider.categories;
+
+    // Payment Methods
+    final customMethods = userProvider.customPaymentMethods;
+    final List<String> paymentMethods = [
+      'Cash',
+      'UPI',
+      'Debit Card',
+      'Credit Card',
+      'Bank Account',
+      ...customMethods,
+    ].where((m) {
+      if (customMethods.contains(m)) return true;
+      return userProvider.isPaymentMethodEnabled(m);
+    }).toList();
 
     // Dropdown Items
     final List<DropdownMenuItem<String>> dropdownItems = categories
@@ -268,8 +291,14 @@ class _AddItemDialogState extends State<AddItemDialog> {
 
               Text(
                 widget.editingItem != null
-                    ? (_isVariable ? 'Edit Variable Entry' : 'Edit Quick Entry')
-                    : (_isVariable ? 'New Variable Entry' : 'New Quick Entry'),
+                    ? (_mode == EntryMode.flexi
+                        ? 'Edit Variable Entry'
+                        : 'Edit Quick Entry')
+                    : (_mode == EntryMode.flexi
+                        ? 'New Variable Entry'
+                        : _mode == EntryMode.oneTime
+                            ? 'One Time Transaction'
+                            : 'New Quick Entry'),
                 style: GoogleFonts.inter(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -334,10 +363,11 @@ class _AddItemDialogState extends State<AddItemDialog> {
               const SizedBox(height: 16),
 
               // Icon Selector (Always show now, or logic specific?)
-              // User said "it like must be in the colour of yellow", but we still need an icon.
-              const SizedBox(height: 16),
-              _buildIconSelector(context),
-              const SizedBox(height: 16),
+              if (_mode != EntryMode.oneTime) ...[
+                const SizedBox(height: 16),
+                _buildIconSelector(context),
+                const SizedBox(height: 16),
+              ],
 
               // Expense/Income Toggle (Only for Other/Virtual)
               if (_shouldShowTypeToggle(categories)) ...[
@@ -360,7 +390,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
               ),
               const SizedBox(height: 16),
 
-              if (!_isVariable) ...[
+              if (_mode != EntryMode.flexi) ...[
                 TextField(
                   controller: _amountController,
                   keyboardType: TextInputType.number,
@@ -374,30 +404,53 @@ class _AddItemDialogState extends State<AddItemDialog> {
                 const SizedBox(height: 16),
               ],
 
-              // Frequency & Due Date (Available for both types now)
-              // Frequency & Due Date
-              _buildFrequencyToggle(context),
-              if (!_isDaily && !_isVariable) ...[
-                const SizedBox(height: 16),
-                DropdownButtonFormField<int>(
-                  value: _dueDay,
+              // Payment Method (Only for One Time)
+              if (_mode == EntryMode.oneTime) ...[
+                DropdownButtonFormField<String>(
+                  value: paymentMethods.contains(_selectedPaymentMethod)
+                      ? _selectedPaymentMethod
+                      : (paymentMethods.isNotEmpty ? paymentMethods.first : null),
                   decoration: InputDecoration(
-                    labelText: 'Due Day (Optional)',
+                    labelText: 'Payment Method',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    prefixIcon: const Icon(Icons.calendar_today),
+                    prefixIcon: const Icon(Icons.payment),
                   ),
-                  items: List.generate(31, (index) => index + 1)
-                      .map(
-                        (day) => DropdownMenuItem(
-                          value: day,
-                          child: Text('Day $day'),
-                        ),
-                      )
+                  items: paymentMethods
+                      .map((m) => DropdownMenuItem(value: m, child: Text(m)))
                       .toList(),
-                  onChanged: (value) => setState(() => _dueDay = value),
+                  onChanged:
+                      (value) => setState(() => _selectedPaymentMethod = value),
                 ),
+                const SizedBox(height: 16),
+              ],
+
+              // Frequency & Due Date (Available for both types now)
+              if (_mode != EntryMode.oneTime) ...[
+                _buildFrequencyToggle(context),
+                if (!_isDaily && _mode != EntryMode.flexi) ...[
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<int>(
+                    value: _dueDay,
+                    decoration: InputDecoration(
+                      labelText: 'Due Day (Optional)',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      prefixIcon: const Icon(Icons.calendar_today),
+                    ),
+                    items: List.generate(31, (index) => index + 1)
+                        .map(
+                          (day) => DropdownMenuItem(
+                            value: day,
+                            child: Text('Day $day'),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (value) => setState(() => _dueDay = value),
+                  ),
+                ],
               ],
 
               const SizedBox(height: 24),
@@ -427,9 +480,11 @@ class _AddItemDialogState extends State<AddItemDialog> {
                       : Text(
                           widget.editingItem != null
                               ? 'Update Entry'
-                              : (_isVariable
-                                    ? 'Save Variable Entry'
-                                    : 'Save Quick Entry'),
+                              : (_mode == EntryMode.flexi
+                                  ? 'Save Variable Entry'
+                                  : _mode == EntryMode.oneTime
+                                      ? 'Save Transaction'
+                                      : 'Save Quick Entry'),
                         ),
                 ),
               ),
@@ -462,16 +517,24 @@ class _AddItemDialogState extends State<AddItemDialog> {
             child: _buildToggleBtn(
               context,
               'Quick Entry',
-              !_isVariable,
-              () => setState(() => _isVariable = false),
+              _mode == EntryMode.quick,
+              () => setState(() => _mode = EntryMode.quick),
             ),
           ),
           Expanded(
             child: _buildToggleBtn(
               context,
               'Flexi',
-              _isVariable,
-              () => setState(() => _isVariable = true),
+              _mode == EntryMode.flexi,
+              () => setState(() => _mode = EntryMode.flexi),
+            ),
+          ),
+          Expanded(
+            child: _buildToggleBtn(
+              context,
+              'One Time',
+              _mode == EntryMode.oneTime,
+              () => setState(() => _mode = EntryMode.oneTime),
             ),
           ),
         ],
@@ -756,7 +819,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
       return;
     }
 
-    if (!_isVariable && _amountController.text.isEmpty) {
+    if (_mode != EntryMode.flexi && _amountController.text.isEmpty) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Please enter an amount')));
@@ -772,10 +835,34 @@ class _AddItemDialogState extends State<AddItemDialog> {
       return;
     }
 
+    // --- One Time Mode ---
+    if (_mode == EntryMode.oneTime) {
+      final success = await provider.addTransaction(
+        _titleController.text,
+        double.tryParse(_amountController.text) ?? 0.0,
+        _isExpense,
+        categoryId: finalCategoryId == 'other_virtual' ? null : finalCategoryId,
+        paymentMethod: _selectedPaymentMethod,
+      );
+
+      if (mounted) {
+        if (success) {
+          Navigator.of(context).pop();
+        } else {
+          setState(() => _isSaving = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Failed to save transaction')),
+          );
+        }
+      }
+      return;
+    }
+
+    // --- Quick/Flexi Entry Mode ---
     // Consolidate Save Logic
     final itemData = {
       'title': _titleController.text,
-      'amount': _isVariable
+      'amount': _mode == EntryMode.flexi
           ? 0.0
           : (double.tryParse(_amountController.text) ?? 0.0),
       'frequency': _isDaily ? 'daily' : 'monthly',
@@ -783,7 +870,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
       'isExpense': _isExpense,
       'icon': _selectedIcon,
       'dueDay': _isDaily ? null : _dueDay,
-      'isVariable': _isVariable,
+      'isVariable': _mode == EntryMode.flexi,
       // userId handled by backend service
     };
 
