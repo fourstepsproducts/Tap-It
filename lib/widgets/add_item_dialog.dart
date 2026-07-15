@@ -890,7 +890,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
       }
       try {
         await _handleNotification(widget.editingItem!.id, isUpdate: true);
-      } catch (e) {}
+      } catch (e) { /* ignored */ }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Updated ${_titleController.text}')),
@@ -901,7 +901,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
       if (newItem != null) {
         try {
           await _handleNotification(newItem.id, isUpdate: false);
-        } catch (e) {}
+        } catch (e) { /* ignored */ }
       }
     }
     if (mounted) Navigator.pop(context);

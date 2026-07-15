@@ -1,4 +1,4 @@
-package com.example.track_expense
+package com.aitra.tapit
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
@@ -20,9 +20,9 @@ class InvestWidgetProvider : AppWidgetProvider() {
             val views = RemoteViews(context.packageName, R.layout.widget_invest_layout)
             val prefs = context.getSharedPreferences("HomeWidgetPreferences", Context.MODE_PRIVATE)
 
-            views.setTextViewText(R.id.invest_current_value, prefs.getString("invest_current_value", "₹0.00"))
-            views.setTextViewText(R.id.invest_invested, prefs.getString("invest_invested", "₹0.00"))
-            views.setTextViewText(R.id.invest_pnl, prefs.getString("invest_pnl", "₹0.00"))
+            views.setTextViewText(R.id.invest_current_value, prefs.getString("invest_current_value", "Ã¢â€šÂ¹0.00"))
+            views.setTextViewText(R.id.invest_invested, prefs.getString("invest_invested", "Ã¢â€šÂ¹0.00"))
+            views.setTextViewText(R.id.invest_pnl, prefs.getString("invest_pnl", "Ã¢â€šÂ¹0.00"))
 
             for (i in 1..3) {
                 val title = prefs.getString("invest_item_${i}_title", null)
@@ -39,7 +39,7 @@ class InvestWidgetProvider : AppWidgetProvider() {
                         views.setOnClickPendingIntent(viewId, pi)
                     }
                 } else {
-                    views.setTextViewText(viewId, "—")
+                    views.setTextViewText(viewId, "Ã¢â‚¬â€")
                 }
             }
 

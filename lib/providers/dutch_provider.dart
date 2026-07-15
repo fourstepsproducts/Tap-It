@@ -252,10 +252,10 @@ class DutchProvider extends ChangeNotifier {
 
   Future<void> syncWidget({String? currency}) async {
     try {
-      String symbol = currency ?? '₹';
+      String symbol = currency ?? 'â‚¹';
       if (currency == null) {
         final prefs = await SharedPreferences.getInstance();
-        symbol = prefs.getString('currency_symbol') ?? '₹';
+        symbol = prefs.getString('currency_symbol') ?? 'â‚¹';
       }
 
       final yourShare = getGlobalUserShare();
@@ -505,7 +505,7 @@ class DutchProvider extends ChangeNotifier {
     required List<String> members,
     required String createdBy,
     required String icon,
-    String currency = '₹',
+    String currency = 'â‚¹',
   }) async {
     _isLoading = true;
     _error = null;
@@ -583,7 +583,7 @@ class DutchProvider extends ChangeNotifier {
           await fetchGroups();
           try {
             group = _groups.firstWhere((g) => g['id'] == groupId);
-          } catch (_) {}
+          } catch (_) { /* ignored */ }
         }
       }
 
@@ -625,8 +625,7 @@ class DutchProvider extends ChangeNotifier {
       } else {
         _hasMoreExpenses = false;
       }
-    } catch (e) {
-    } finally {
+    } catch (e) { /* ignored */ } finally {
       _isLoading = false;
       notifyListeners();
     }
@@ -649,8 +648,7 @@ class DutchProvider extends ChangeNotifier {
       } else {
         _hasMoreSettlements = false;
       }
-    } catch (e) {
-    } finally {
+    } catch (e) { /* ignored */ } finally {
       _isLoading = false;
       notifyListeners();
     }
@@ -680,8 +678,7 @@ class DutchProvider extends ChangeNotifier {
       } else {
         _hasMoreGroupExpenses = false;
       }
-    } catch (e) {
-    } finally {
+    } catch (e) { /* ignored */ } finally {
       _isLoading = false;
       notifyListeners();
     }
@@ -705,8 +702,7 @@ class DutchProvider extends ChangeNotifier {
       } else {
         _hasMoreGroupSettlements = false;
       }
-    } catch (e) {
-    } finally {
+    } catch (e) { /* ignored */ } finally {
       _isLoading = false;
       notifyListeners();
     }
@@ -906,7 +902,7 @@ class DutchProvider extends ChangeNotifier {
                 orElse: () => {},
               )['name'] ??
               'Someone';
-        } catch (_) {}
+        } catch (_) { /* ignored */ }
 
         // Create optimistic settlement (but no notifications yet)
         final tempId = 'temp_${DateTime.now().millisecondsSinceEpoch}';
@@ -975,7 +971,7 @@ class DutchProvider extends ChangeNotifier {
             receiverId: receiverId,
             title: 'Payment Received',
             message:
-                '$payerName has sent ₹${amount.toStringAsFixed(2)}. Please approve it.',
+                '$payerName has sent â‚¹${amount.toStringAsFixed(2)}. Please approve it.',
             type: 'settlement',
             settlementId: realSettlementId,
           );
@@ -986,7 +982,7 @@ class DutchProvider extends ChangeNotifier {
           await AppwriteService().createNotification(
             receiverId: payerId,
             title: 'Payment Sent',
-            message: 'You sent ₹${amount.toStringAsFixed(2)} to $receiverName.',
+            message: 'You sent â‚¹${amount.toStringAsFixed(2)} to $receiverName.',
             type: 'settlement',
             settlementId: realSettlementId,
           );

@@ -336,7 +336,7 @@ class AppwriteService {
             fileId: userId,
           );
           return await uploadProfilePhoto(userId, filePath);
-        } catch (e2) {}
+        } catch (e2) { /* ignored */ }
       }
 
       return null;
@@ -459,7 +459,7 @@ class AppwriteService {
       response['id'] = doc.$id;
       return response;
     } catch (e) {
-      debugPrint('❌ createTransaction FAILED: $e');
+      debugPrint('âŒ createTransaction FAILED: $e');
       return null;
     }
   }

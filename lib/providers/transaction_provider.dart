@@ -54,10 +54,10 @@ class TransactionProvider extends ChangeNotifier {
   // --- Widget Sync ---
   Future<void> syncWidget({String? currency}) async {
     try {
-      String symbol = currency ?? '₹';
+      String symbol = currency ?? 'â‚¹';
       if (currency == null) {
         final prefs = await SharedPreferences.getInstance();
-        symbol = prefs.getString('currency_symbol') ?? '₹';
+        symbol = prefs.getString('currency_symbol') ?? 'â‚¹';
       }
       await WidgetService.updateWidgetData(
         balance: totalBalance,
@@ -193,7 +193,7 @@ class TransactionProvider extends ChangeNotifier {
       if (_categories.isNotEmpty) {
         await _categoryBox.putAll({for (var c in _categories) c.id: c});
       }
-    } catch (e) {}
+    } catch (e) { /* ignored */ }
   }
 
   Future<void> _loadQuickItems() async {
@@ -344,9 +344,9 @@ class TransactionProvider extends ChangeNotifier {
     try {
       // API Call
       final txJson = newTransaction.toJson();
-      debugPrint('📤 Sending transaction to DB: $txJson');
+      debugPrint('ðŸ“¤ Sending transaction to DB: $txJson');
       final result = await _appwriteService.createTransaction(txJson);
-      debugPrint('📥 DB response: ${result != null ? "SUCCESS" : "NULL (FAILED)"}');
+      debugPrint('ðŸ“¥ DB response: ${result != null ? "SUCCESS" : "NULL (FAILED)"}');
 
       if (result != null) {
         final realTx = Transaction.fromJson(result);

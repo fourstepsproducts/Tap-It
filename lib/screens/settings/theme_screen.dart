@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:track_expense/providers/theme_provider.dart';
+import 'package:tapit/providers/theme_provider.dart';
 
 class ThemeScreen extends StatefulWidget {
   const ThemeScreen({super.key});

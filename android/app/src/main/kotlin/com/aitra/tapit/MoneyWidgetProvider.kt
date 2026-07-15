@@ -1,4 +1,4 @@
-package com.example.track_expense
+package com.aitra.tapit
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
@@ -44,9 +44,9 @@ class MoneyWidgetProvider : AppWidgetProvider() {
             val views = RemoteViews(context.packageName, R.layout.widget_layout)
             val prefs = context.getSharedPreferences("HomeWidgetPreferences", Context.MODE_PRIVATE)
 
-            views.setTextViewText(R.id.widget_balance, prefs.getString("balance", "₹0.00"))
-            views.setTextViewText(R.id.widget_income, prefs.getString("income", "₹0.00"))
-            views.setTextViewText(R.id.widget_expenses, prefs.getString("expenses", "₹0.00"))
+            views.setTextViewText(R.id.widget_balance, prefs.getString("balance", "Ã¢â€šÂ¹0.00"))
+            views.setTextViewText(R.id.widget_income, prefs.getString("income", "Ã¢â€šÂ¹0.00"))
+            views.setTextViewText(R.id.widget_expenses, prefs.getString("expenses", "Ã¢â€šÂ¹0.00"))
 
             // Open app on balance card click
             val launchIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)
@@ -116,7 +116,7 @@ class MoneyWidgetProvider : AppWidgetProvider() {
                     views.setOnClickPendingIntent(textViews[i], pi)
                 }
             } else {
-                views.setTextViewText(textViews[i], "—")
+                views.setTextViewText(textViews[i], "Ã¢â‚¬â€")
             }
         }
     }

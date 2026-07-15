@@ -32,7 +32,7 @@ class PersonLedgerScreen extends StatefulWidget {
   final Function() onRemind;
   final List<String> myIdentities;
   final String currentUserId;
-  final bool isNotesMode; // Added
+  final bool isNotesMode;
 
   const PersonLedgerScreen({
     super.key,
@@ -45,7 +45,7 @@ class PersonLedgerScreen extends StatefulWidget {
     required this.onRemind,
     required this.myIdentities,
     required this.currentUserId,
-    this.isNotesMode = false, // Added
+    this.isNotesMode = false,
   });
 
   @override
@@ -76,8 +76,6 @@ class _PersonLedgerScreenState extends State<PersonLedgerScreen> {
   @override
   void didUpdateWidget(PersonLedgerScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // If parent updates props, we might want to respect that, but we prioritize Provider now.
-    // We update _localTransactions only if we are treating it as a "cache" but simpler to just use Provider.
   }
 
   // Updated to support email comparison

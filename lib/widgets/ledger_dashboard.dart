@@ -48,7 +48,7 @@ class _LedgerDashboardState extends State<LedgerDashboard> {
             _contactsLoaded = true;
           });
         }
-      } catch (e) {}
+      } catch (e) { /* ignored */ }
     } else {}
   }
 
@@ -148,7 +148,7 @@ class _LedgerDashboardState extends State<LedgerDashboard> {
                               }
                             });
                           }
-                        } catch (e) {}
+                        } catch (e) { /* ignored */ }
                       }
                     },
                     decoration: InputDecoration(
@@ -832,7 +832,7 @@ class _LedgerDashboardState extends State<LedgerDashboard> {
                                       ),
                                     ),
                                     Text(
-                                      '${_formatTime(tx.dateTime)} • ${tx.status.capitalize()}',
+                                      '${_formatTime(tx.dateTime)} â€¢ ${tx.status.capitalize()}',
                                       style: GoogleFonts.inter(
                                         color: Colors.grey,
                                         fontSize: 12,

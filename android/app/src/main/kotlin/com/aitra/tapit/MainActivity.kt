@@ -1,4 +1,4 @@
-package com.example.track_expense
+package com.aitra.tapit
 
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName

@@ -72,7 +72,7 @@ class _CreateGroupDialogState extends State<CreateGroupDialog> {
             _contactsLoaded = true;
           });
         }
-      } catch (e) {}
+      } catch (e) { /* ignored */ }
     }
   }
 
@@ -341,7 +341,7 @@ class _CreateGroupDialogState extends State<CreateGroupDialog> {
                             }
                           });
                         }
-                      } catch (e) {}
+                      } catch (e) { /* ignored */ }
                     }
                   },
                   decoration: InputDecoration(
@@ -515,7 +515,7 @@ class _CreateGroupDialogState extends State<CreateGroupDialog> {
                                     last['name'] = user['name'] ?? last['name'];
                                   });
                                 }
-                              } catch (e) {}
+                              } catch (e) { /* ignored */ }
                             }
                           },
                         );
