@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Account | Tap-It</title>
+    <style>
+        :root {
+            --primary-color: #ef4444; /* Red color for destructive actions */
+            --text-main: #1f2937;
+            --text-muted: #4b5563;
+            --bg-color: #f3f4f6;
+            --container-bg: #ffffff;
+            --border-color: #e5e7eb;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.7;
+            color: var(--text-main);
+            background-color: var(--bg-color);
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: var(--container-bg);
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: var(--text-muted);
+        }
+
+        ol {
+            margin-bottom: 1.5rem;
+            padding-left: 1.5rem;
+            color: var(--text-muted);
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        .warning-box {
+            background-color: #fef2f2;
+            border-left: 4px solid var(--primary-color);
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+            color: #991b1b;
+        }
+
+        .contact-info {
+            background-color: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-top: 2rem;
+        }
+
+        a {
+            color: #2563eb;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 1.5rem;
+            }
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Account Deletion Request</h1>
+            <p>Instructions for deleting your Tap-It account</p>
+        </div>
+
+        <p>At Tap-It, we give you full control over your personal information. If you no longer wish to use our application and want to permanently delete your account, please follow the instructions below.</p>
+
+        <div class="warning-box">
+            <strong>Warning:</strong> Deleting your account is a permanent action. All your profile information, settings, and associated data will be permanently erased and cannot be recovered.
+        </div>
+
+        <h2>Method 1: Delete from within the App (Recommended)</h2>
+        <p>You can instantly delete your account directly from the Tap-It app:</p>
+        <ol>
+            <li>Open the Tap-It app and log in to your account.</li>
+            <li>Navigate to the <strong>Settings</strong> or <strong>Account</strong> screen.</li>
+            <li>Tap on <strong>Privacy & Security</strong> (if applicable).</li>
+            <li>Select <strong>Delete Account</strong> and follow the on-screen confirmation prompts.</li>
+        </ol>
+
+        <h2>Method 2: Request Deletion via Email</h2>
+        <p>If you have uninstalled the app or cannot log in, you can request account deletion by contacting our support team:</p>
+        <ol>
+            <li>Send an email to <a href="mailto:admin@aitra.org">admin@aitra.org</a> from the email address associated with your Tap-It account.</li>
+            <li>Use the subject line: <strong>"Account Deletion Request"</strong>.</li>
+            <li>In the body of the email, state that you would like your account and all associated data permanently deleted.</li>
+        </ol>
+        <p><em>Please note: Email requests may take up to 7-14 business days to process. We may ask you to verify your identity before proceeding with the deletion.</em></p>
+
+        <div class="contact-info">
+            <h2>Still need help?</h2>
+            <p>If you have any questions or encounter issues while trying to delete your account, please contact our support team:</p>
+            <p><strong>Email:</strong> <a href="mailto:admin@aitra.org">admin@aitra.org</a></p>
+            <p><strong>Website:</strong> <a href="https://aitra.org">https://aitra.org</a></p>
+        </div>
+    </div>
+</body>
+</html>

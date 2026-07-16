@@ -13,7 +13,7 @@ class NotificationsScreen extends StatefulWidget {
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
   bool _pushEnabled = true;
-  bool _emailEnabled = false;
+
   bool _remindersEnabled = true;
   TimeOfDay _reminderTime = const TimeOfDay(hour: 20, minute: 0);
 
@@ -27,7 +27,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _pushEnabled = prefs.getBool('push_enabled') ?? true;
-      _emailEnabled = prefs.getBool('email_enabled') ?? false;
+
       _remindersEnabled = prefs.getBool('reminders_enabled') ?? true;
       final hour = prefs.getInt('reminder_hour') ?? 20;
       final minute = prefs.getInt('reminder_minute') ?? 0;
@@ -80,15 +80,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               _updatePreference('push_enabled', val);
             },
           ),
-          _buildSwitchTile(
-            title: 'Email Alerts',
-            subtitle: 'Get weekly summaries via email',
-            value: _emailEnabled,
-            onChanged: (val) {
-              setState(() => _emailEnabled = val);
-              _updatePreference('email_enabled', val);
-            },
-          ),
+
 
           const SizedBox(height: 32),
           _buildSectionHeader('Reminders'),

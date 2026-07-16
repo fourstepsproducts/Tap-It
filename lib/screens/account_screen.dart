@@ -265,26 +265,7 @@ class AccountScreen extends StatelessWidget {
                       MaterialPageRoute(builder: (_) => const ThemeScreen()),
                     ),
                   ),
-                  _buildSettingItem(
-                    context,
-                    icon: Icons.lock_outline,
-                    title: 'Privacy & Security',
-                    subtitle: 'Manage your privacy settings',
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const PrivacyScreen()),
-                    ),
-                  ),
-                  _buildSettingItem(
-                    context,
-                    icon: Icons.help_outline,
-                    title: 'Help & Support',
-                    subtitle: 'Get help and support',
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const HelpScreen()),
-                    ),
-                  ),
+
                   _buildSettingItem(
                     context,
                     icon: Icons.info_outline,

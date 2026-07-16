@@ -72,7 +72,7 @@ class AboutScreen extends StatelessWidget {
               context,
               'Privacy Policy',
               Icons.policy_outlined,
-              () => _launchUrl('https://example.com/privacy'),
+              () => _launchUrl('https://tapit.privacy.aitra.org/'),
             ),
 
             const SizedBox(height: 48),
