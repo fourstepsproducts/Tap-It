@@ -67,18 +67,7 @@ class AboutScreen extends StatelessWidget {
             const SizedBox(height: 48),
 
             _buildSectionHeader(context, 'Information'),
-            _buildInfoTile(
-              context,
-              'What\'s New',
-              Icons.new_releases_outlined,
-              () {},
-            ),
-            _buildInfoTile(
-              context,
-              'Terms of Service',
-              Icons.description_outlined,
-              () => _launchUrl('https://example.com/terms'),
-            ),
+
             _buildInfoTile(
               context,
               'Privacy Policy',
@@ -89,7 +78,7 @@ class AboutScreen extends StatelessWidget {
             const SizedBox(height: 48),
 
             Text(
-              '© 2026 Tap It Inc.',
+              '© 2026 Tap It',
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: Theme.of(
