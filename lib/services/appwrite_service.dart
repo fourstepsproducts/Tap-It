@@ -1468,6 +1468,7 @@ class AppwriteService {
     required String title,
     required String message,
     required String type, // 'nudge', 'reminder', etc.
+    String? scheduledDate,
   }) async {
     // Forward to unified createNotification method
     await createNotification(
@@ -1475,6 +1476,7 @@ class AppwriteService {
       title: title,
       message: message,
       type: type,
+      scheduledDate: scheduledDate,
     );
   }
   // --- INVESTMENTS ---
@@ -1680,7 +1682,17 @@ class AppwriteService {
           Query.limit(limit),
         ],
       );
-      return result.documents.map((d) {
+      final now = DateTime.now();
+      return result.documents.where((d) {
+        final data = d.data;
+        if (data.containsKey('scheduledDate') && data['scheduledDate'] != null) {
+          try {
+            final scheduled = DateTime.parse(data['scheduledDate'].toString());
+            if (scheduled.isAfter(now)) return false;
+          } catch (_) {}
+        }
+        return true;
+      }).map((d) {
         final data = d.data;
         data['\$id'] = d.$id;
         return data;
@@ -1698,20 +1710,27 @@ class AppwriteService {
     required String message,
     required String type,
     String? settlementId,
+    String? scheduledDate,
   }) async {
     try {
+      final data = {
+        'receiverId': receiverId,
+        'title': title,
+        'message': message,
+        'type': type,
+        'settlementId': settlementId,
+        'isRead': false,
+      };
+      
+      if (scheduledDate != null) {
+        data['scheduledDate'] = scheduledDate;
+      }
+
       await databases.createDocument(
         databaseId: AppwriteConfig.databaseId,
         collectionId: AppwriteConfig.notificationsCollectionId,
         documentId: ID.unique(),
-        data: {
-          'receiverId': receiverId,
-          'title': title,
-          'message': message,
-          'type': type,
-          'settlementId': settlementId,
-          'isRead': false,
-        },
+        data: data,
       );
       return true;
     } catch (e) {

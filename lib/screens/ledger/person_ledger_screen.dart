@@ -10,7 +10,7 @@ import '../../providers/ledger_provider.dart';
 import '../../providers/user_provider.dart';
 import '../../models/ledger_transaction.dart';
 import '../../services/appwrite_service.dart';
-
+import '../../services/notification_service.dart';
 typedef OnAddTransactionCallback =
     Future<String?> Function(
       String name,
@@ -295,10 +295,10 @@ class _PersonLedgerScreenState extends State<PersonLedgerScreen> {
             ),
             const SizedBox(height: 24),
             ListTile(
-              onTap: () async {
+              onTap: () {
                 Navigator.pop(context);
                 if (_validatePhone()) {
-                  await _sendInAppNudge();
+                  _showNudgeOptionsDialog();
                 }
               },
               leading: Container(
@@ -320,7 +320,7 @@ class _PersonLedgerScreenState extends State<PersonLedgerScreen> {
                 ),
               ),
               subtitle: Text(
-                'Notify instantly if they use Tap It',
+                'Notify now or schedule for later',
                 style: GoogleFonts.inter(
                   color: Colors.grey.shade600,
                   fontSize: 13,
@@ -454,6 +454,180 @@ class _PersonLedgerScreenState extends State<PersonLedgerScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error: $e'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    }
+  }
+
+  void _showNudgeOptionsDialog() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Theme.of(context).cardColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'When to Nudge?',
+              style: GoogleFonts.inter(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 24),
+            ListTile(
+              onTap: () async {
+                Navigator.pop(context);
+                await _sendInAppNudge();
+              },
+              leading: const Icon(Icons.send),
+              title: const Text('Now'),
+              subtitle: const Text('Send notification immediately'),
+            ),
+            ListTile(
+              onTap: () {
+                Navigator.pop(context);
+                _showScheduleDialog();
+              },
+              leading: const Icon(Icons.calendar_month),
+              title: const Text('Schedule'),
+              subtitle: const Text('Pick dates to remind them later'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showScheduleDialog() {
+    List<DateTime> selectedDates = [];
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('Select Dates'),
+              content: SizedBox(
+                width: double.maxFinite,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CalendarDatePicker(
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime.now().add(const Duration(days: 365)),
+                      onDateChanged: (date) {
+                        setState(() {
+                          final normalized = DateTime(date.year, date.month, date.day);
+                          if (selectedDates.contains(normalized)) {
+                            selectedDates.remove(normalized);
+                          } else {
+                            selectedDates.add(normalized);
+                          }
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    if (selectedDates.isNotEmpty)
+                      Wrap(
+                        spacing: 8,
+                        children: selectedDates.map((d) => Chip(
+                          label: Text('${d.day}/${d.month}/${d.year}'),
+                          onDeleted: () {
+                            setState(() {
+                              selectedDates.remove(d);
+                            });
+                          },
+                        )).toList(),
+                      ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    if (selectedDates.isNotEmpty) {
+                      _scheduleNudges(selectedDates);
+                    }
+                  },
+                  child: const Text('Confirm'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _scheduleNudges(List<DateTime> dates) async {
+    try {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Scheduling nudges...'),
+          duration: Duration(seconds: 1),
+        ),
+      );
+
+      final user = await AppwriteService().getUserByPhone(widget.personPhone);
+
+      if (user != null) {
+        for (var date in dates) {
+          final scheduledTime = DateTime(date.year, date.month, date.day, 10, 0); // 10 AM default
+          await AppwriteService().sendNotification(
+            userId: user['userId'],
+            title: 'Payment Nudge',
+            message: 'Friendly reminder to settle up!',
+            type: 'nudge',
+            scheduledDate: scheduledTime.toIso8601String(),
+          );
+        }
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Successfully scheduled ${dates.length} nudges!'),
+              backgroundColor: Theme.of(context).colorScheme.primary,
+            ),
+          );
+        }
+      } else {
+        if (mounted) {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('User Not Found'),
+              content: Text(
+                '${widget.personName} is not on Tap It yet. Cannot schedule in-app nudges.',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('OK'),
+                ),
+              ],
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to schedule nudges: $e'),
             backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );

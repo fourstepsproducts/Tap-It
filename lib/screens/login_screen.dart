@@ -81,7 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _errorMessage = 'An error occurred: $e';
+          _errorMessage = 'Unable to connect to the server. Please check your internet connection or try again later.';
           _isLoading = false;
         });
       }
@@ -115,7 +115,7 @@ class _LoginScreenState extends State<LoginScreen> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _errorMessage = 'Google sign-in error: $e';
+          _errorMessage = 'Unable to sign in with Google. Please check your connection and try again.';
           _isLoading = false;
         });
       }
@@ -329,23 +329,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           },
                         ),
 
-                        // Forgot Password
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: TextButton(
-                            onPressed: () {
-                              // TODO: Implement forgot password
-                            },
-                            child: Text(
-                              'Forgot Password?',
-                              style: GoogleFonts.inter(
-                                color: primaryColor,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ),
+                        const SizedBox(height: 24),
 
                         if (_errorMessage != null) ...[
                           Container(
@@ -426,61 +410,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                         const SizedBox(height: 20),
 
-                        // Divider
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Divider(color: Colors.grey.shade300),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                              ),
-                              child: Text(
-                                'OR',
-                                style: GoogleFonts.inter(
-                                  color: Colors.grey.shade600,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: Divider(color: Colors.grey.shade300),
-                            ),
-                          ],
-                        ),
 
-                        const SizedBox(height: 20),
-
-                        // Google Sign In Button
-                        OutlinedButton.icon(
-                          onPressed: _isLoading ? null : _handleGoogleSignIn,
-                          icon: Icon(
-                            Icons.login,
-                            color: primaryColor,
-                            size: 24,
-                          ),
-                          label: Text(
-                            'Continue with Google',
-                            style: GoogleFonts.inter(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: const Color(0xFF1E1E1E),
-                            ),
-                          ),
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            side: BorderSide(
-                              color: Colors.grey.shade300,
-                              width: 1.5,
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(height: 24),
 
                         // Don't have account
                         Row(

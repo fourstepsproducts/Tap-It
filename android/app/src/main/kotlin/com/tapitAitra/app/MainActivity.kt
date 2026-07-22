@@ -1,4 +1,4 @@
-package com.aitra.tapit
+package com.tapitAitra.app
 
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName

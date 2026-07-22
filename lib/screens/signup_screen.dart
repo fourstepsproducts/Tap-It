@@ -160,7 +160,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _errorMessage = 'An error occurred: $e';
+          _errorMessage = 'Unable to connect to the server. Please check your internet connection or try again later.';
           _isLoading = false;
         });
       }
