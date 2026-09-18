@@ -82,13 +82,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
       return;
     }
 
-    // 3. Phone Validation (10 digits for India/General)
-    // You might want to strip non-digits first if user types spaces
+    // 3. Phone Validation (7 to 15 digits for international numbers)
     final cleanPhone = phone.replaceAll(RegExp(r'\D'), '');
-    if (cleanPhone.length < 10) {
+    if (cleanPhone.length < 7 || cleanPhone.length > 15) {
       if (mounted) {
         setState(() {
-          _errorMessage = 'Phone number must be at least 10 digits.';
+          _errorMessage = 'Phone number must be between 7 and 15 digits.';
           _isLoading = false;
         });
       }
@@ -360,8 +359,31 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 showOnlyCountryWhenClosed: false,
                                 alignLeft: false,
                                 textStyle: GoogleFonts.inter(
-                                  color: const Color(0xFF1E1E1E),
+                                  color: Theme.of(context).colorScheme.onSurface,
                                   fontSize: 16,
+                                ),
+                                dialogBackgroundColor: Theme.of(context).colorScheme.surface,
+                                dialogTextStyle: GoogleFonts.inter(
+                                  color: Theme.of(context).colorScheme.onSurface,
+                                  fontSize: 15,
+                                ),
+                                searchStyle: GoogleFonts.inter(
+                                  color: Theme.of(context).colorScheme.onSurface,
+                                  fontSize: 15,
+                                ),
+                                searchDecoration: InputDecoration(
+                                  hintText: 'Search country',
+                                  hintStyle: GoogleFonts.inter(
+                                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                                  ),
+                                  prefixIcon: Icon(
+                                    Icons.search,
+                                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                                  ),
+                                ),
+                                boxDecoration: BoxDecoration(
+                                  color: Theme.of(context).colorScheme.surface,
+                                  borderRadius: BorderRadius.circular(16),
                                 ),
                               ),
                             ),
@@ -554,7 +576,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           onPressed: _isLoading ? null : _handleSignUp,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: primaryColor,
+                            disabledBackgroundColor: primaryColor.withOpacity(0.6),
                             foregroundColor: Colors.white,
+                            disabledForegroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),

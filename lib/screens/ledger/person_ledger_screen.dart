@@ -10,7 +10,6 @@ import '../../providers/ledger_provider.dart';
 import '../../providers/user_provider.dart';
 import '../../models/ledger_transaction.dart';
 import '../../services/appwrite_service.dart';
-import '../../services/notification_service.dart';
 typedef OnAddTransactionCallback =
     Future<String?> Function(
       String name,
@@ -89,10 +88,12 @@ class _PersonLedgerScreenState extends State<PersonLedgerScreen> {
     final n1 = p1.replaceAll(RegExp(r'\D'), '');
     final n2 = p2.replaceAll(RegExp(r'\D'), '');
     if (n1.isEmpty || n2.isEmpty) return false;
-    if (n1.length >= 10 && n2.length >= 10) {
-      return n1.substring(n1.length - 10) == n2.substring(n2.length - 10);
+    if (n1 == n2) return true;
+    final minLen = n1.length < n2.length ? n1.length : n2.length;
+    if (minLen >= 7) {
+      return n1.substring(n1.length - minLen) == n2.substring(n2.length - minLen);
     }
-    return n1 == n2;
+    return false;
   }
 
   // Helpers to fetch latest data directly from provider
@@ -1624,7 +1625,33 @@ class _PersonLedgerScreenState extends State<PersonLedgerScreen> {
                         showOnlyCountryWhenClosed: false,
                         padding: EdgeInsets.zero,
                         flagWidth: 24,
-                        textStyle: GoogleFonts.inter(fontSize: 14),
+                        textStyle: GoogleFonts.inter(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontSize: 14,
+                        ),
+                        dialogBackgroundColor: Theme.of(context).colorScheme.surface,
+                        dialogTextStyle: GoogleFonts.inter(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontSize: 15,
+                        ),
+                        searchStyle: GoogleFonts.inter(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontSize: 15,
+                        ),
+                        searchDecoration: InputDecoration(
+                          hintText: 'Search country',
+                          hintStyle: GoogleFonts.inter(
+                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                          ),
+                          prefixIcon: Icon(
+                            Icons.search,
+                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                          ),
+                        ),
+                        boxDecoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surface,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 8),

@@ -732,13 +732,20 @@ class LedgerProvider extends ChangeNotifier {
 
   bool _arePhonesEqual(String? p1, String? p2) {
     if (p1 == null || p2 == null) return false;
-    return _normalizePhone(p1) == _normalizePhone(p2);
+    final n1 = p1.replaceAll(RegExp(r'\D'), '');
+    final n2 = p2.replaceAll(RegExp(r'\D'), '');
+    if (n1.isEmpty || n2.isEmpty) return false;
+    if (n1 == n2) return true;
+    final minLen = n1.length < n2.length ? n1.length : n2.length;
+    if (minLen >= 7) {
+      return n1.substring(n1.length - minLen) == n2.substring(n2.length - minLen);
+    }
+    return false;
   }
 
   String _normalizePhone(String? phone) {
     if (phone == null || phone.isEmpty) return '';
-    String digits = phone.replaceAll(RegExp(r'\D'), '');
-    return digits.length > 10 ? digits.substring(digits.length - 10) : digits;
+    return phone.replaceAll(RegExp(r'\D'), '');
   }
 
   Future<void> _fetchUserPhotos(List<LedgerTransaction> transactions) async {

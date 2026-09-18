@@ -134,7 +134,63 @@ class AppwriteService {
     }
   }
 
+  // Check if an email exists in the profiles collection
+  Future<bool> checkEmailExists(String email) async {
+    try {
+      final result = await databases.listDocuments(
+        databaseId: AppwriteConfig.databaseId,
+        collectionId: AppwriteConfig.profilesCollectionId,
+        queries: [
+          Query.equal('email', [email]),
+          Query.limit(1),
+        ],
+      );
+      return result.documents.isNotEmpty;
+    } catch (e) {
+      print('Error checking email exists: $e');
+      return false;
+    }
+  }
+
+  // Reset Password using OTP via Cloud Function
+  Future<bool> resetPasswordWithOTP(String email, String newPassword) async {
+    try {
+      final execution = await functions.createExecution(
+        functionId: AppwriteConfig.resetPasswordFunctionId,
+        body: jsonEncode({
+          'email': email,
+          'password': newPassword,
+        }),
+        xasync: false, // Ensure synchronous execution
+      );
+
+      print('Execution status: ${execution.status}');
+      print('Execution response: ${execution.responseBody}');
+
+      try {
+        final response = jsonDecode(execution.responseBody);
+        if (response['success'] == true) {
+          return true;
+        } else {
+          print('Function execution failed: \${execution.responseBody}');
+          return false;
+        }
+      } catch (e) {
+        // Fallback if response body isn't standard JSON
+        if (execution.responseBody.contains('success')) {
+          return true;
+        }
+        print('Function execution failed or unparseable: \${execution.responseBody}');
+        return false;
+      }
+    } catch (e) {
+      print('Error calling reset password function: $e');
+      return false;
+    }
+  }
+
   // Login with email and password
+
   Future<Map<String, dynamic>> login({
     required String email,
     required String password,

@@ -49,10 +49,12 @@ class _LedgerGraphScreenState extends State<LedgerGraphScreen> {
     final n1 = p1.replaceAll(RegExp(r'\D'), '');
     final n2 = p2.replaceAll(RegExp(r'\D'), '');
     if (n1.isEmpty || n2.isEmpty) return false;
-    if (n1.length >= 10 && n2.length >= 10) {
-      return n1.substring(n1.length - 10) == n2.substring(n2.length - 10);
+    if (n1 == n2) return true;
+    final minLen = n1.length < n2.length ? n1.length : n2.length;
+    if (minLen >= 7) {
+      return n1.substring(n1.length - minLen) == n2.substring(n2.length - minLen);
     }
-    return n1 == n2;
+    return false;
   }
 
   void _scrollToLastTransaction() {

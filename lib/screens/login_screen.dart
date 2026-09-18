@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import '../providers/user_provider.dart';
+import 'forgot_password_screen.dart';
 // import '../services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -82,40 +83,6 @@ class _LoginScreenState extends State<LoginScreen> {
       if (mounted) {
         setState(() {
           _errorMessage = 'Unable to connect to the server. Please check your internet connection or try again later.';
-          _isLoading = false;
-        });
-      }
-    }
-  }
-
-  Future<void> _handleGoogleSignIn() async {
-    if (mounted) {
-      setState(() {
-        _isLoading = true;
-        _errorMessage = null;
-      });
-    }
-
-    try {
-      final userProvider = Provider.of<UserProvider>(context, listen: false);
-      final success = await userProvider.signInWithGoogle();
-
-      if (success) {
-        if (mounted) {
-          Navigator.of(context).pushReplacementNamed('/home');
-        }
-      } else {
-        if (mounted) {
-          setState(() {
-            _errorMessage = 'Google sign-in failed';
-            _isLoading = false;
-          });
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _errorMessage = 'Unable to sign in with Google. Please check your connection and try again.';
           _isLoading = false;
         });
       }
@@ -329,7 +296,25 @@ class _LoginScreenState extends State<LoginScreen> {
                           },
                         ),
 
-                        const SizedBox(height: 24),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton(
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(builder: (context) => const ForgotPasswordScreen()),
+                              );
+                            },
+                            child: Text(
+                              'Forgot Password?',
+                              style: GoogleFonts.inter(
+                                color: primaryColor,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 16),
 
                         if (_errorMessage != null) ...[
                           Container(
@@ -366,7 +351,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           onPressed: _isLoading ? null : _handleLogin,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: primaryColor,
+                            disabledBackgroundColor: primaryColor.withOpacity(0.6),
                             foregroundColor: Colors.white,
+                            disabledForegroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),

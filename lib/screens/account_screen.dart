@@ -9,8 +9,6 @@ import '../utils/formatters.dart';
 import '../models/user_profile.dart';
 import 'settings/notifications_screen.dart';
 import 'settings/theme_screen.dart';
-import 'settings/privacy_screen.dart';
-import 'settings/help_screen.dart';
 import 'settings/about_screen.dart';
 import 'settings/bank_details_screen.dart';
 import 'settings/reset_options_screen.dart';

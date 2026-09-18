@@ -300,11 +300,6 @@ class _CreateGroupDialogState extends State<CreateGroupDialog> {
                               final remotePhone = user['phone']
                                   .toString()
                                   .replaceAll(RegExp(r'\D'), '');
-                              final remoteFormatted = remotePhone.length >= 10
-                                  ? remotePhone.substring(
-                                      remotePhone.length - 10,
-                                    )
-                                  : remotePhone;
 
                               int index = _searchResults.indexWhere((r) {
                                 if (r is Contact) {
@@ -313,20 +308,18 @@ class _CreateGroupDialogState extends State<CreateGroupDialog> {
                                       RegExp(r'\D'),
                                       '',
                                     );
-                                    final pFormatted = pNorm.length >= 10
-                                        ? pNorm.substring(pNorm.length - 10)
-                                        : pNorm;
-                                    return pFormatted == remoteFormatted;
+                                    if (pNorm == remotePhone) return true;
+                                    final minLen = pNorm.length < remotePhone.length ? pNorm.length : remotePhone.length;
+                                    return minLen >= 7 && pNorm.substring(pNorm.length - minLen) == remotePhone.substring(remotePhone.length - minLen);
                                   });
                                 }
                                 final rNorm = r['phone'].toString().replaceAll(
                                   RegExp(r'\D'),
                                   '',
                                 );
-                                final rFormatted = rNorm.length >= 10
-                                    ? rNorm.substring(rNorm.length - 10)
-                                    : rNorm;
-                                return rFormatted == remoteFormatted;
+                                if (rNorm == remotePhone) return true;
+                                final minLen = rNorm.length < remotePhone.length ? rNorm.length : remotePhone.length;
+                                return minLen >= 7 && rNorm.substring(rNorm.length - minLen) == remotePhone.substring(remotePhone.length - minLen);
                               });
 
                               if (index != -1) {
@@ -478,11 +471,7 @@ class _CreateGroupDialogState extends State<CreateGroupDialog> {
                                   RegExp(r'\D'),
                                   '',
                                 );
-                                final formattedPhone = cleanPhone.length >= 10
-                                    ? cleanPhone.substring(
-                                        cleanPhone.length - 10,
-                                      )
-                                    : cleanPhone;
+                                final formattedPhone = cleanPhone;
 
                                 _membersToAdd.add({
                                   'id': id,
@@ -499,11 +488,7 @@ class _CreateGroupDialogState extends State<CreateGroupDialog> {
                                   RegExp(r'\D'),
                                   '',
                                 );
-                                final formattedPhone = cleanPhone.length >= 10
-                                    ? cleanPhone.substring(
-                                        cleanPhone.length - 10,
-                                      )
-                                    : cleanPhone;
+                                final formattedPhone = cleanPhone;
                                 final fullPhone =
                                     '$_selectedCountryCode$formattedPhone';
                                 final user = await AppwriteService()

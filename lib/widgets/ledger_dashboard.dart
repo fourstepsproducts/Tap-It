@@ -243,9 +243,7 @@ class _LedgerDashboardState extends State<LedgerDashboard> {
                                 RegExp(r'\D'),
                                 '',
                               );
-                              final formattedPhone = cleanPhone.length >= 10
-                                  ? cleanPhone.substring(cleanPhone.length - 10)
-                                  : cleanPhone;
+                              final formattedPhone = cleanPhone;
 
                               nameController.text = name;
                               phoneController.text = formattedPhone;
@@ -292,6 +290,33 @@ class _LedgerDashboardState extends State<LedgerDashboard> {
                               selectedCountryCode = code.dialCode ?? '+91',
                           initialSelection: 'IN',
                           showCountryOnly: false,
+                          textStyle: GoogleFonts.inter(
+                            color: Theme.of(context).colorScheme.onSurface,
+                            fontSize: 14,
+                          ),
+                          dialogBackgroundColor: Theme.of(context).colorScheme.surface,
+                          dialogTextStyle: GoogleFonts.inter(
+                            color: Theme.of(context).colorScheme.onSurface,
+                            fontSize: 15,
+                          ),
+                          searchStyle: GoogleFonts.inter(
+                            color: Theme.of(context).colorScheme.onSurface,
+                            fontSize: 15,
+                          ),
+                          searchDecoration: InputDecoration(
+                            hintText: 'Search country',
+                            hintStyle: GoogleFonts.inter(
+                              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                            ),
+                            prefixIcon: Icon(
+                              Icons.search,
+                              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                            ),
+                          ),
+                          boxDecoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.surface,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -301,7 +326,7 @@ class _LedgerDashboardState extends State<LedgerDashboard> {
                           keyboardType: TextInputType.phone,
                           onChanged: (value) async {
                             final phone = value.replaceAll(RegExp(r'\D'), '');
-                            if (phone.length >= 10) {
+                            if (phone.length >= 7) {
                               setDialogState(() => checkingRegistration = true);
                               final fullPhone = '$selectedCountryCode$phone';
                               try {
@@ -970,9 +995,12 @@ class _LedgerDashboardState extends State<LedgerDashboard> {
     final n1 = p1.replaceAll(RegExp(r'\D'), '');
     final n2 = p2.replaceAll(RegExp(r'\D'), '');
     if (n1.isEmpty || n2.isEmpty) return false;
-    return (n1.length >= 10 && n2.length >= 10)
-        ? n1.substring(n1.length - 10) == n2.substring(n2.length - 10)
-        : n1 == n2;
+    if (n1 == n2) return true;
+    final minLen = n1.length < n2.length ? n1.length : n2.length;
+    if (minLen >= 7) {
+      return n1.substring(n1.length - minLen) == n2.substring(n2.length - minLen);
+    }
+    return false;
   }
 
   // Reuse existing calculation logic
@@ -1054,8 +1082,7 @@ class _LedgerDashboardState extends State<LedgerDashboard> {
   }
 
   String _normalizePhone(String phone) {
-    String digits = phone.replaceAll(RegExp(r'\D'), '');
-    return digits.length > 10 ? digits.substring(digits.length - 10) : digits;
+    return phone.replaceAll(RegExp(r'\D'), '');
   }
 
   String _formatTime(DateTime dateTime) {
@@ -1562,7 +1589,33 @@ class _LedgerDashboardState extends State<LedgerDashboard> {
                         showOnlyCountryWhenClosed: false,
                         padding: EdgeInsets.zero,
                         flagWidth: 24,
-                        textStyle: GoogleFonts.inter(fontSize: 14),
+                        textStyle: GoogleFonts.inter(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontSize: 14,
+                        ),
+                        dialogBackgroundColor: Theme.of(context).colorScheme.surface,
+                        dialogTextStyle: GoogleFonts.inter(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontSize: 15,
+                        ),
+                        searchStyle: GoogleFonts.inter(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontSize: 15,
+                        ),
+                        searchDecoration: InputDecoration(
+                          hintText: 'Search country',
+                          hintStyle: GoogleFonts.inter(
+                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                          ),
+                          prefixIcon: Icon(
+                            Icons.search,
+                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                          ),
+                        ),
+                        boxDecoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surface,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 8),

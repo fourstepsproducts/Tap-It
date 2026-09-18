@@ -1,0 +1,12 @@
+{
+  "name": "reset-password",
+  "version": "1.0.0",
+  "description": "Appwrite Cloud Function to reset user password via Server SDK",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js"
+  },
+  "dependencies": {
+    "node-appwrite": "^14.1.0"
+  }
+}
