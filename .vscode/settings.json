@@ -1,0 +1,16 @@
+{
+  "java.import.gradle.wrapper.enabled": true,
+  "java.import.gradle.version": "8.14",
+  "java.import.gradle.home": null,
+  "java.autobuild.enabled": false,
+  "gradle.buildServer.enabled": "off",
+  "gradle.autoDetect": "off",
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true
+  }
+}

@@ -70,13 +70,16 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
             child: CircleAvatar(
               backgroundColor: Colors.black54,
               child: IconButton(
-                icon: ValueListenableBuilder(
-                  valueListenable: _controller.torchState,
+                icon: ValueListenableBuilder<MobileScannerState>(
+                  valueListenable: _controller,
                   builder: (context, state, child) {
-                    switch (state) {
+                    final torchState = state.torchState;
+                    switch (torchState) {
                       case TorchState.on:
                         return const Icon(Icons.flash_on, color: Colors.yellow);
                       case TorchState.off:
+                      case TorchState.auto:
+                      case TorchState.unavailable:
                         return const Icon(Icons.flash_off, color: Colors.grey);
                     }
                   },

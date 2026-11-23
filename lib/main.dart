@@ -217,7 +217,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
   Widget build(BuildContext context) {
     return Consumer<UserProvider>(
       builder: (context, auth, _) {
-        if (auth.isLoading) {
+        if (!auth.isInitialCheckDone && auth.isLoading) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
