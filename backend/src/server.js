@@ -7,6 +7,8 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const connectDB = require('./config/db');
+const { profilesDir } = require('./config/storage');
+const uploadRoutes = require('./routes/uploadRoutes');
 
 const app = express();
 
@@ -15,8 +17,11 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Connect Database
-connectDB();
+// Strictly expose only the profiles directory
+app.use('/uploads/profiles', express.static(profilesDir));
+
+// API Routes
+app.use('/api/upload', uploadRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -40,10 +45,32 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5010;
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+/**
+ * Async server initialization:
+ * Ensures MongoDB connects successfully BEFORE listening for HTTP requests.
+ */
+const startServer = async () => {
+  try {
+    // 1. Await database connection first
+    await connectDB();
 
-module.exports = app;
+    // 2. Start accepting incoming traffic only after DB is ready
+    const server = app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+
+    return server;
+  } catch (err) {
+    console.error(`FATAL: Server startup aborted due to error: ${err.message}`);
+    process.exit(1);
+  }
+};
+
+// Start server if executed directly
+if (require.main === module) {
+  startServer();
+}
+
+module.exports = { app, startServer };
